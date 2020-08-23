@@ -1,0 +1,38 @@
+{
+  "name": "evalup_api",
+  "version": "1.0.0",
+  "description": "Restful service for an evaluation management application with nodejs",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "cross-env NODE_ENV=test mocha tests/**/*.test.js --require tests/bootstrap.js --required chai/register-expect",
+    "test:watch": "cross-env NODE_ENV=test mocha tests/**/*.test.js --watch --require tests/bootstrap.js --required chai/register-expect"
+  },
+  "author": "thetechshrine",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "cross-env": "^7.0.2",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "mocha": "^8.1.1",
+    "nodemon": "^2.0.4",
+    "nyc": "^15.1.0",
+    "prettier": "^2.0.5",
+    "sinon": "^9.0.3",
+    "sinon-chai": "^3.5.0"
+  },
+  "dependencies": {
+    "faker": "^5.0.0",
+    "joi": "^17.2.1",
+    "uuid": "^8.3.0"
+  }
+}
