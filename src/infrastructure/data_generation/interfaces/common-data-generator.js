@@ -31,6 +31,10 @@ module.exports = class CommonDataGenerator {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
+  generatePassword() {
+    throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
+  }
+
   generateStringOfLength(_length) {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }

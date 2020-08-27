@@ -3,7 +3,7 @@ const { PersonalInformation } = require('../../src/database/entities');
 const { PersonalInformationFactory } = require('../../src/database/factories');
 const commonEnums = require('../../src/database/enums/common');
 
-describe('personal information entity (abstract)', () => {
+describe('create personal information entity (abstract)', () => {
   it('should return an error if no arguments are passed', () => {
     expect(() => {
       new PersonalInformation();

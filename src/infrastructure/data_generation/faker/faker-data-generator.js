@@ -32,4 +32,8 @@ module.exports = class FakerDataGenerator extends CommonDataGenerator {
       country: faker.address.country(),
     };
   }
+
+  generatePassword() {
+    return faker.internet.password(8);
+  }
 };
