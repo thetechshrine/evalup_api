@@ -24,8 +24,11 @@ module.exports = class FakerDataGenerator extends CommonDataGenerator {
   }
 
   generateAddress() {
+    const DEFAULT_STREET_NUMBER = 1;
+    const streetNumber = faker.random.number(100);
+
     return {
-      streetNumber: faker.random.number(100),
+      streetNumber: streetNumber > 0 ? streetNumber : DEFAULT_STREET_NUMBER,
       streetName: faker.address.streetName(),
       city: faker.address.city(),
       zipCode: faker.address.zipCode(),

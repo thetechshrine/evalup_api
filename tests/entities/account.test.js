@@ -21,7 +21,7 @@ describe('create account entity', () => {
     }).to.throw();
   });
 
-  it('should successfully generate a new account with an id', () => {
+  it('should successfully create a new account with an id', () => {
     const account = new Account(AccountFactory.generate());
     expect(account).to.have.property('id');
   });
