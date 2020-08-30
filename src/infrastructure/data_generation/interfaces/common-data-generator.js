@@ -23,7 +23,7 @@ module.exports = class CommonDataGenerator {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  generateLink() {
+  generateUrl() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 

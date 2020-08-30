@@ -15,7 +15,7 @@ describe('create account entity', () => {
     }).to.throw();
   });
 
-  it('should return an error if the role is not one of [student, administrator, teacher]', () => {
+  it('should return an error if the role is not one of authorized role', () => {
     expect(() => {
       new Account(AccountFactory.generate({ role: 'role' }));
     }).to.throw();

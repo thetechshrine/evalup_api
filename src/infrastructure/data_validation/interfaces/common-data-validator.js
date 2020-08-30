@@ -14,4 +14,12 @@ module.exports = class CommonDataValidator {
   validatePersonName(_personName) {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
+
+  validateId(_id) {
+    throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
+  }
+
+  validateUrl(_url) {
+    throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
+  }
 };

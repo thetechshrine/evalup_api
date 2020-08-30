@@ -1,7 +1,7 @@
 module.exports = {
-  roles: {
-    STUDENT: 'student',
-    TEACHER: 'teacher',
-    ADMINISTRATOR: 'administrator',
-  },
+  roles: Object.freeze({
+    STUDENT: 'STUDENT',
+    TEACHER: 'TEACHER',
+    ADMINISTRATOR: 'ADMINISTRATOR',
+  }),
 };

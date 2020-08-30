@@ -39,4 +39,16 @@ module.exports = class FakerDataGenerator extends CommonDataGenerator {
   generatePassword() {
     return faker.internet.password(8);
   }
+
+  generateStringOfLength(length) {
+    return faker.random.alphaNumeric(length);
+  }
+
+  generateId() {
+    return faker.random.uuid();
+  }
+
+  generateUrl() {
+    return faker.internet.url();
+  }
 };

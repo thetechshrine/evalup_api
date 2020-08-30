@@ -12,6 +12,7 @@
   "author": "thetechshrine",
   "license": "MIT",
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
