@@ -1,25 +1,25 @@
 module.exports = class CommonDataValidator {
-  validateEmail(_email) {
+  validateEmail() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  validatePhoneNumber(_phoneNumber) {
+  validatePhoneNumber() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  validateDate(_date) {
+  validateDate() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  validatePersonName(_personName) {
+  validatePersonName() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  validateId(_id) {
+  validateId() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  validateUrl(_url) {
+  validateUrl() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 };

@@ -40,6 +40,15 @@ module.exports = function buildAssessmentResult({
     }
   }
 
+  function validateAssetsIds(assetsIds) {
+    if (!assetsIds || !Array.isArray(assetsIds) || assetsIds.length === 0) {
+      throw new Error('Assets ids must be an array of at leat one element');
+    }
+    assetsIds.forEach((assetId) => {
+      commonDataValidator.validateId(assetId);
+    });
+  }
+
   return class AssessmentResult extends TimeEntity {
     #id;
     #createdAt;
@@ -53,10 +62,17 @@ module.exports = function buildAssessmentResult({
     #assessmentId;
     #assetsIds;
 
-    constructor({ type, comments, courseResultId, assessmentId } = {}) {
+    constructor({
+      type,
+      comments,
+      courseResultId,
+      assessmentId,
+      assetsIds,
+    } = {}) {
       validateType(type);
       commonDataValidator.validateId(courseResultId);
       commonDataValidator.validateId(assessmentId);
+      validateAssetsIds(assetsIds);
 
       super();
       this.#id = commonDataGenerator.generateId();
@@ -67,6 +83,7 @@ module.exports = function buildAssessmentResult({
       this.#status = assessmentResultEnums.statuses.PENDING;
       this.#courseResultId = courseResultId;
       this.#assessmentId = assessmentId;
+      this.#assetsIds = assetsIds;
 
       Object.seal(this);
     }
