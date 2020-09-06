@@ -1,7 +1,10 @@
-module.exports = function buildCourse({ commonDataGenerator }) {
+module.exports = function buildCourse({
+  commonDataGenerator,
+  commonDataValidator,
+}) {
   function validateCode(code) {
     if (!code) {
-      throw new Error('Code parameter is required');
+      throw new Error('code parameter is mandatory');
     }
   }
 
@@ -10,10 +13,15 @@ module.exports = function buildCourse({ commonDataGenerator }) {
     #code;
     #description;
 
-    constructor({ code, description } = {}) {
+    constructor({
+      id = commonDataGenerator.generateId(),
+      code,
+      description,
+    } = {}) {
+      commonDataValidator.validateId(id);
       validateCode(code);
 
-      this.#id = commonDataGenerator.generateId();
+      this.#id = id;
       this.#code = code;
       this.#description = description;
 
