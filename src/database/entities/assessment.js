@@ -1,7 +1,5 @@
 const TimeEntity = require('../../application/helpers/time-entity');
 const assessmentEnums = require('../enums/assessment');
-const entityValidator = require('../../application/helpers/entity-validator');
-const assetUtils = require('../../application/helpers/asset-utils');
 
 module.exports = function buildAssessment({
   commonDataGenerator,
@@ -10,20 +8,29 @@ module.exports = function buildAssessment({
   function validateType(type) {
     const assessmentResultTypes = Object.values(assessmentEnums.types);
     if (!assessmentResultTypes.includes(type)) {
-      throw new Error(`type must be one of ${assessmentResultTypes}`);
+      throw new Error(
+        `Assessment type must be one of ${assessmentResultTypes}`
+      );
     }
   }
 
   function validateDatesConformity(startDate, endDate) {
     if (!startDate || new Date(startDate) >= new Date(endDate)) {
-      throw new Error(
-        'startDate parameter is invalid or is later than endDate'
-      );
+      throw new Error('Start parameter is invalid or is later than end date');
     }
   }
 
   function validateTitle(title) {
-    if (!title) throw new Error('title parameter is mandatory');
+    if (!title) throw new Error('Title parameter is required');
+  }
+
+  function validateAssetsIds(assetsIds) {
+    if (!assetsIds || !Array.isArray(assetsIds) || assetsIds.length === 0) {
+      throw new Error('Assets ids must be an array of at leat one element');
+    }
+    assetsIds.forEach((assetId) => {
+      commonDataValidator.validateId(assetId);
+    });
   }
 
   return class Assessment extends TimeEntity {
@@ -35,47 +42,34 @@ module.exports = function buildAssessment({
     #description;
     #startDate;
     #endDate;
-    #teacher;
-    #course;
-    #group;
-    #assets;
+    #teacherId;
+    #assetsIds;
 
     constructor({
-      id = commonDataGenerator.generateId(),
       type,
       title,
       description,
       startDate,
       endDate,
-      teacher,
-      course,
-      group,
-      assets,
-      createdAt,
-      updatedAt,
+      teacherId,
+      assetsIds,
     } = {}) {
-      commonDataValidator.validateId(id);
       validateType(type);
       validateTitle(title);
       commonDataValidator.validateDate(startDate);
       commonDataValidator.validateDate(endDate);
       validateDatesConformity(startDate, endDate);
-      entityValidator.validateTeacher({ teacher });
-      entityValidator.validateGroup({ group });
-      entityValidator.validateCourse({ course });
-      assetUtils.validateAssets({ assets });
+      commonDataValidator.validateId(teacherId);
+      validateAssetsIds(assetsIds);
 
       super();
-      this.#id = id;
+      this.#id = commonDataGenerator.generateId();
       this.#type = type;
       this.#description = description;
       this.#startDate = startDate;
       this.#endDate = endDate;
-      this.#teacher = teacher;
-      this.#group = group;
-      this.#course = course;
-      this.#createdAt = createdAt;
-      this.#updatedAt = updatedAt;
+      this.#teacherId = teacherId;
+      this.#assetsIds = assetsIds;
 
       Object.seal(this);
     }
@@ -128,40 +122,22 @@ module.exports = function buildAssessment({
       return this.#endDate;
     }
 
-    set teacher(teacher) {
-      entityValidator.validateTeacher({ teacher, required: true });
-      this.#teacher = teacher;
+    set teacherId(teacherId) {
+      commonDataValidator.validateId(teacherId);
+      this.#teacherId = teacherId;
     }
 
-    get teacher() {
-      return this.#teacher;
+    get teacherId() {
+      return this.#teacherId;
     }
 
-    set course(course) {
-      entityValidator.validateCourse({ course, required: true });
-      this.#course = course;
+    set assetsIds(assetsIds) {
+      validateAssetsIds(assetsIds);
+      this.#assetsIds = assetsIds;
     }
 
-    get course() {
-      return this.#course;
-    }
-
-    set group(group) {
-      entityValidator.validateGroup({ group, required: true });
-      this.#group = group;
-    }
-
-    get group() {
-      return this.#group;
-    }
-
-    set assets(assets) {
-      assetUtils.validateAssets({ assets, required: true });
-      this.#assets = assets;
-    }
-
-    get assets() {
-      return this.#assets;
+    get assetsIds() {
+      return this.#assetsIds;
     }
 
     toJSON() {
@@ -174,10 +150,6 @@ module.exports = function buildAssessment({
         description: this.#description,
         startDate: this.#startDate,
         endDate: this.#endDate,
-        teacher: this.#teacher.toJSON(),
-        course: this.#course.toJSON(),
-        group: this.#group.toJSON(),
-        asset: assetUtils.parseAssetsToJSONArray(this.#assets),
       };
     }
   };

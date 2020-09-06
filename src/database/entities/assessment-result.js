@@ -1,7 +1,6 @@
 const TimeEntity = require('../../application/helpers/time-entity');
 const assessmentResultEnums = require('../enums/assessment-result');
-const entityValidator = require('../../application/helpers/entity-validator');
-const assetUtils = require('../../application/helpers/asset-utils');
+const assessmentEnums = require('../enums/assessment');
 
 module.exports = function buildAssessmentResult({
   commonDataGenerator,
@@ -12,69 +11,95 @@ module.exports = function buildAssessmentResult({
       assessmentResultEnums.statuses
     );
     if (!assessmentResultStatuses.includes(status)) {
-      throw new Error(`status must be one of ${assessmentResultStatuses}`);
+      throw new Error(
+        `Assessment result status must be one of ${assessmentResultStatuses}`
+      );
+    }
+  }
+
+  function validateType(type) {
+    const assessmentResultTypes = Object.values(assessmentEnums.types);
+    if (!assessmentResultTypes.includes(type)) {
+      throw new Error(
+        `Assessment result type must be one of ${assessmentResultTypes}`
+      );
     }
   }
 
   function validateObtainedNote(obtainedNote) {
     if (!obtainedNote || obtainedNote < 0) {
-      throw new Error('obtainedNote parameter must be greater or equal to 0');
+      throw new Error('Obtained note parameter must be greater or equal to 0');
     }
   }
 
   function validateObtainedCredits(obtainedCredits) {
     if (!obtainedCredits || obtainedCredits <= 0) {
       throw new Error(
-        'obtainedCredits parameter must be greater or equal to 0'
+        'Obtained credits parameter must be greater or equal to 0'
       );
     }
+  }
+
+  function validateAssetsIds(assetsIds) {
+    if (!assetsIds || !Array.isArray(assetsIds) || assetsIds.length === 0) {
+      throw new Error('Assets ids must be an array of at leat one element');
+    }
+    assetsIds.forEach((assetId) => {
+      commonDataValidator.validateId(assetId);
+    });
   }
 
   return class AssessmentResult extends TimeEntity {
     #id;
     #createdAt;
     #updatedAt;
+    #type;
     #obtainedNote;
     #obtainedCredits;
     #status;
     #comments;
-    #assessment;
-    #student;
-    #assets;
+    #courseResultId;
+    #assessmentId;
+    #assetsIds;
 
     constructor({
-      id = commonDataGenerator.generateId(),
-      obtainedNote = 0,
-      obtainedCredits = 0,
-      status = assessmentResultEnums.statuses.CREATED,
+      type,
       comments,
-      assessment,
-      student,
-      assets,
-      createdAt,
-      updatedAt,
+      courseResultId,
+      assessmentId,
+      assetsIds,
     } = {}) {
-      commonDataValidator.validateId(id);
-      entityValidator.validateAssessment({ assessment });
-      entityValidator.validateStudent({ student });
-      assetUtils.validateAssets({ assets, required: true });
+      validateType(type);
+      commonDataValidator.validateId(courseResultId);
+      commonDataValidator.validateId(assessmentId);
+      validateAssetsIds(assetsIds);
 
       super();
-      this.#id = id;
-      this.#obtainedNote = obtainedNote;
-      this.#obtainedCredits = obtainedCredits;
+      this.#id = commonDataGenerator.generateId();
+      this.#type = type;
+      this.#obtainedNote = 0;
+      this.#obtainedCredits = 0;
       this.#comments = comments;
-      this.#status = status;
-      this.#assessment = assessment;
-      this.#student = student;
-      this.#createdAt = createdAt;
-      this.#updatedAt = updatedAt;
+      this.#status = assessmentResultEnums.statuses.PENDING;
+      this.#courseResultId = courseResultId;
+      this.#assessmentId = assessmentId;
+      this.#assetsIds = assetsIds;
 
       Object.seal(this);
     }
 
     get id() {
       return this.#id;
+    }
+
+    set type(type) {
+      validateType(type);
+      this.#type = type;
+      this.#updatedAt = Date.now();
+    }
+
+    get type() {
+      return this.#type;
     }
 
     set obtainedNote(obtainedNote) {
@@ -115,31 +140,34 @@ module.exports = function buildAssessmentResult({
       return this.#status;
     }
 
-    set assessment(assessment) {
-      entityValidator.validateAssessment({ assessment, required: true });
-      this.#assessment = assessment;
+    set courseResultId(courseResultId) {
+      commonDataValidator.validateId(courseResultId);
+      this.#courseResultId = courseResultId;
+      this.#updatedAt = Date.now();
     }
 
-    get assessment() {
-      return this.#assessment;
+    get courseResultId() {
+      return this.#courseResultId;
     }
 
-    set student(student) {
-      entityValidator.validateStudent({ student, required: true });
-      this.#student = student;
+    set assessmentId(assessmentId) {
+      commonDataValidator.validateId(assessmentId);
+      this.#assessmentId = assessmentId;
+      this.#updatedAt = Date.now();
     }
 
-    get student() {
-      return this.#student;
+    get assessmentId() {
+      return this.#assessmentId;
     }
 
-    set assets(assets) {
-      assetUtils.validateAssets({ assets, required: true });
-      this.#assets = assets;
+    set assetsIds(assetsIds) {
+      commonDataValidator.validateId(assetsIds);
+      this.#assetsIds = assetsIds;
+      this.#updatedAt = Date.now();
     }
 
-    get assets() {
-      return this.#assets;
+    get assetsIds() {
+      return this.#assetsIds;
     }
 
     toJSON() {
@@ -151,9 +179,7 @@ module.exports = function buildAssessmentResult({
         obtainedCredits: this.#obtainedCredits,
         comments: this.#comments,
         status: this.#status,
-        assessment: this.#assessment.toJSON(),
-        student: this.#student.toJSON(),
-        assets: assetUtils.parseAssetsToJSONArray(this.#assets),
+        type: this.#type,
       };
     }
   };

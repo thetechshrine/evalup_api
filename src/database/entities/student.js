@@ -1,118 +1,52 @@
 const studentEnums = require('../enums/student');
-const entityValidator = require('../../application/helpers/entity-validator');
+const commonEnums = require('../enums/common');
 
 module.exports = function buildStudent({
   commonDataGenerator,
   commonDataValidator,
 }) {
-  function validateGender(gender) {
-    const personGenders = Object.values(studentEnums.genders);
-    if (!gender || !personGenders.includes(gender)) {
-      throw new Error(`Gender must be one of ${personGenders}`);
-    }
-  }
-
   function validateNationality(nationality) {
     const countriesCodes = Object.keys(studentEnums.countries);
     if (!nationality || !countriesCodes.includes(nationality))
-      throw new Error(`Country must be one of ${countriesCodes}`);
+      throw new Error(`Invalid nationality ${nationality}`);
+  }
+
+  function validatePersonalInformation(personalInfomation) {
+    if (
+      !personalInfomation ||
+      personalInfomation.constructor.name !==
+        commonEnums.entitiesClassNames.PERSONAL_INFORMATION
+    ) {
+      throw new Error(
+        'Personal information parameter must be an instance of PersonalInformation class'
+      );
+    }
   }
 
   return class Student {
     #id;
     #nationality;
-    #gender;
-    #lastName;
-    #firstName;
-    #phone;
-    #birthDate;
-    #account;
-    #address;
-    #group;
+    #personalInformation;
+    #addressId;
+    #accountId;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      gender,
-      lastName,
-      firstName,
-      phone,
-      birthDate,
-      nationality,
-      account,
-      address,
-      group,
-    }) {
-      commonDataValidator.validateId(id);
-      commonDataValidator.validatePersonName(lastName);
-      commonDataValidator.validatePersonName(firstName);
-      commonDataValidator.validatePhoneNumber(phone);
-      commonDataValidator.validateDate(birthDate);
+    constructor({ nationality, personalInformation, addressId, accountId }) {
       validateNationality(nationality);
-      entityValidator.validateAccount({ account });
-      entityValidator.validateAddress({ address });
-      entityValidator.validateGroup({ group });
+      validatePersonalInformation(personalInformation);
+      commonDataValidator.validateId(addressId);
+      commonDataValidator.validateId(accountId);
 
-      this.#id = id;
-      this.#gender = gender;
-      this.#lastName = lastName;
-      this.#firstName = firstName;
-      this.#phone = phone;
-      this.#birthDate = birthDate;
+      this.#id = commonDataGenerator.generateId();
       this.#nationality = nationality;
-      this.#account = account;
-      this.#address = address;
-      this.#group = group;
+      this.#personalInformation = personalInformation;
+      this.#addressId = addressId;
+      this.#accountId = accountId;
 
       Object.seal(this);
     }
 
     get id() {
       return this.#id;
-    }
-
-    set gender(gender) {
-      validateGender(gender);
-      this.#gender = gender;
-    }
-
-    get gender() {
-      return this.#gender;
-    }
-
-    set lastName(lastName) {
-      commonDataValidator.validatePersonName(lastName);
-      this.#lastName = lastName;
-    }
-
-    get lastName() {
-      return this.#lastName;
-    }
-
-    set firstName(firstName) {
-      commonDataValidator.validatePersonName(firstName);
-      this.#firstName = firstName;
-    }
-
-    get firstName() {
-      return this.#firstName;
-    }
-
-    set phone(phone) {
-      commonDataValidator.validatePhoneNumber(phone);
-      this.#phone = phone;
-    }
-
-    get phone() {
-      return this.#phone;
-    }
-
-    set birthDate(birthDate) {
-      commonDataValidator.validateDate(birthDate);
-      this.#birthDate = birthDate;
-    }
-
-    get birthDate() {
-      return this.#birthDate;
     }
 
     set nationality(nationality) {
@@ -124,45 +58,38 @@ module.exports = function buildStudent({
       return this.#nationality;
     }
 
-    set account(account) {
-      entityValidator.validateAccount({ account, required: true });
-      this.#account = account;
+    set personalInformation(personalInformation) {
+      validatePersonalInformation(personalInformation);
+      this.#personalInformation = personalInformation;
     }
 
-    get account() {
-      return this.#account;
+    get personalInformation() {
+      return this.#personalInformation;
     }
 
-    set address(address) {
-      entityValidator.validateAddress({ address, required: true });
-      this.#address = address;
+    set addressId(addressId) {
+      commonDataValidator.validateId(addressId);
+      this.#addressId = addressId;
     }
 
-    get address() {
-      return this.#address;
+    get addressId() {
+      return this.#addressId;
     }
 
-    set group(group) {
-      entityValidator.validateGroup({ group, required: true });
-      this.#group = group;
+    set accountId(accountId) {
+      commonDataValidator.validateId(accountId);
+      this.#accountId = accountId;
     }
 
-    get group() {
-      return this.#group;
+    get accountId() {
+      return this.#accountId;
     }
 
     toJSON() {
       return {
         id: this.#id,
-        gender: this.#gender,
-        lastName: this.#lastName,
-        firstName: this.#firstName,
-        phone: this.#phone,
-        birthDate: this.#birthDate,
         nationality: this.#nationality,
-        account: this.#account.toJSON(),
-        address: this.#address.toJSON(),
-        group: this.#group.toJSON(),
+        personalInformation: this.#personalInformation.toJSON(),
       };
     }
   };

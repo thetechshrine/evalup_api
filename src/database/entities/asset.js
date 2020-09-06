@@ -8,14 +8,14 @@ module.exports = function buildAsset({
   function validateType(type) {
     const assetTypes = Object.values(assetEnums.types);
     if (!type || !assetTypes.includes(type)) {
-      throw new Error(`type parameter must be one of ${assetTypes}`);
+      throw new Error(`Asset type must be one of ${assetTypes}`);
     }
   }
 
   function validateRole(role) {
     const assetRoles = Object.values(assetEnums.roles);
     if (!role || !assetRoles.includes(role)) {
-      throw new Error(`type parameter must be one of ${assetRoles}`);
+      throw new Error(`Asset type must be one of ${assetRoles}`);
     }
   }
 
@@ -28,28 +28,17 @@ module.exports = function buildAsset({
     #url;
     #remoteId;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      type,
-      role,
-      url,
-      remoteId,
-      createdAt,
-      updatedAt,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ type, role, url, remoteId } = {}) {
       validateType(type);
       validateRole(role);
       commonDataValidator.validateUrl(url);
 
       super();
-      this.#id = id;
+      this.#id = commonDataGenerator.generateId();
       this.#type = type;
       this.#role = role;
       this.#url = url;
       this.#remoteId = remoteId;
-      this.#createdAt = createdAt;
-      this.#updatedAt = updatedAt;
 
       Object.seal(this);
     }

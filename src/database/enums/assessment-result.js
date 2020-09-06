@@ -1,6 +1,6 @@
 module.exports = {
   statuses: Object.freeze({
-    CREATED: 'CREATED',
+    PENDING: 'PENDING',
     NOTED: 'NOTED',
     PUBLISHED: 'PUBLISHED',
   }),

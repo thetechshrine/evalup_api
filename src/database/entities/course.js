@@ -1,30 +1,28 @@
-const entityValidator = require('../../application/helpers/entity-validator');
-
 module.exports = function buildCourse({
   commonDataGenerator,
   commonDataValidator,
 }) {
   function validateCode(code) {
     if (!code) {
-      throw new Error('code parameter is required');
+      throw new Error('Code parameter is required');
     }
   }
 
   function validateTitle(title) {
     if (!title) {
-      throw new Error('title parameter is required');
+      throw new Error('Title parameter is required');
     }
   }
 
   function validateCredits(credits) {
     if (!credits || credits <= 0) {
-      throw new Error(`credits parameter must be greater than 0`);
+      throw new Error(`Credits parameter must be greater than 0`);
     }
   }
 
   function validateSuccessNote(successNote) {
     if (!successNote || successNote <= 0) {
-      throw new Error(`successNote parameter must be greater than 0`);
+      throw new Error(`Success note parameter must be greater than 0`);
     }
   }
 
@@ -35,25 +33,23 @@ module.exports = function buildCourse({
     #description;
     #credits;
     #successNote;
-    #group;
+    #groupId;
 
     constructor({
-      id = commonDataGenerator.generateId(),
       code,
       title,
       description,
       credits,
       successNote,
-      group,
+      groupId,
     } = {}) {
-      commonDataValidator.validateId(id);
       validateCode(code);
       validateTitle(title);
       validateCredits(credits);
       validateSuccessNote(successNote);
-      entityValidator.validateGroup({ group });
+      commonDataValidator.validateId(groupId);
 
-      this.#id = id;
+      this.#id = commonDataGenerator.generateId();
       this.#code = code;
       this.#title = title;
       this.#description = description;
@@ -111,13 +107,13 @@ module.exports = function buildCourse({
       return this.#successNote;
     }
 
-    set group(group) {
-      entityValidator.validateGroup({ group, required: true });
-      this.#group = group;
+    set groupId(groupId) {
+      commonDataValidator.validateId(groupId);
+      this.#groupId = groupId;
     }
 
-    get group() {
-      return this.#group;
+    get groupId() {
+      return this.#groupId;
     }
 
     toJSON() {
@@ -128,7 +124,6 @@ module.exports = function buildCourse({
         description: this.#description,
         credits: this.#credits,
         successNote: this.#successNote,
-        group: this.#group.toJSON(),
       };
     }
   };
