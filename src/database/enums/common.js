@@ -8,5 +8,6 @@ module.exports = {
     TEACHER: 'Teacher',
     ASSESSMENT: 'Assessment',
     ASSET: 'Asset',
+    ASSESSMENT_RESULT: 'AssessmentResult',
   }),
 };

@@ -11,11 +11,17 @@ module.exports = function buildAssetFactory({ fakeDataGenerator }) {
     return assetRoles[Math.floor(Math.random() * assetRoles.length)];
   }
 
+  function pickARamdomTargetResource() {
+    const targetResources = Object.values(assetEnums.targetResources);
+    return targetResources[Math.floor(Math.random() * targetResources.length)];
+  }
+
   return {
     generate(initialValues = {}) {
       return {
         type: pickARamdomAssetType(),
         role: pickARamdomAssetRole(),
+        targetResource: pickARamdomTargetResource(),
         url: fakeDataGenerator.generateUrl(),
         ...initialValues,
       };

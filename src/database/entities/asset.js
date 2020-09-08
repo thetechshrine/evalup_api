@@ -1,5 +1,6 @@
 const TimeEntity = require('../../application/helpers/time-entity');
 const assetEnums = require('../enums/asset');
+const entityValidator = require('../../application/helpers/entity-validator');
 
 module.exports = function buildAsset({
   commonDataGenerator,
@@ -19,33 +20,52 @@ module.exports = function buildAsset({
     }
   }
 
+  function validateTargetResource(targetResource) {
+    const targetResources = Object.values(assetEnums.targetResources);
+    if (!targetResource || !targetResources.includes(targetResource)) {
+      throw new Error(
+        `target resource parameter must be one of ${targetResources}`
+      );
+    }
+  }
+
   return class Asset extends TimeEntity {
     #id;
     #createdAt;
     #updatedAt;
     #type;
     #role;
+    #targetResource;
     #url;
     #remoteId;
+    #assessment;
+    #assessmentResult;
 
     constructor({
       id = commonDataGenerator.generateId(),
       type,
       role,
+      targetResource,
       url,
       remoteId,
+      assessment,
+      assessmentResult,
       createdAt,
       updatedAt,
     } = {}) {
       commonDataValidator.validateId(id);
       validateType(type);
       validateRole(role);
+      validateTargetResource(targetResource);
       commonDataValidator.validateUrl(url);
+      entityValidator.validateAssessment({ assessment });
+      entityValidator.validateAssessmentResult({ assessmentResult });
 
       super();
       this.#id = id;
       this.#type = type;
       this.#role = role;
+      this.#targetResource = targetResource;
       this.#url = url;
       this.#remoteId = remoteId;
       this.#createdAt = createdAt;
@@ -78,6 +98,16 @@ module.exports = function buildAsset({
       return this.#role;
     }
 
+    set targetResource(targetResource) {
+      validateTargetResource(targetResource);
+      this.#targetResource = targetResource;
+      this.#updatedAt = Date.now();
+    }
+
+    get targetResource() {
+      return this.#targetResource;
+    }
+
     set url(url) {
       commonDataValidator.validateUrl(url);
       this.#url = url;
@@ -97,6 +127,29 @@ module.exports = function buildAsset({
       return this.#remoteId;
     }
 
+    set assessment(assessment) {
+      entityValidator.validateAssessment({ assessment, required: true });
+      this.#assessment = assessment;
+      this.#updatedAt = Date.now();
+    }
+
+    get assessment() {
+      return this.#assessment;
+    }
+
+    set assessmentResult(assessmentResult) {
+      entityValidator.validateAssessmentResult({
+        assessmentResult,
+        required: true,
+      });
+      this.#assessmentResult = assessmentResult;
+      this.#updatedAt = Date.now();
+    }
+
+    get assessmentResult() {
+      return this.#assessmentResult;
+    }
+
     toJSON() {
       return {
         id: this.#id,
@@ -104,6 +157,7 @@ module.exports = function buildAsset({
         updatedAt: this.#updatedAt,
         type: this.#type,
         role: this.#role,
+        targetResource: this.#targetResource,
         url: this.#url,
         remoteId: this.#remoteId,
       };

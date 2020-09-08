@@ -10,4 +10,9 @@ module.exports = {
     PRIMARY: 'PRIMARY',
     SECONDARY: 'SECONDARY',
   }),
+
+  targetResources: Object.freeze({
+    ASSESSMENT_RESULT: 'ASSESSMENT_RESULT',
+    ASSESSMENT: 'ASSESSMENT',
+  }),
 };

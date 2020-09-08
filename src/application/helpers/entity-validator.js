@@ -48,6 +48,14 @@ function validateAssessment({ assessment, required = false } = {}) {
   );
 }
 
+function validateAssessmentResult({ assessmentResult, required = false } = {}) {
+  validateEntity(
+    assessmentResult,
+    commonEnums.entitiesClassNames.ASSESSMENT_RESULT,
+    required
+  );
+}
+
 module.exports = {
   validateAccount,
   validateAddress,
@@ -57,4 +65,5 @@ module.exports = {
   validateAsset,
   validateStudent,
   validateAssessment,
+  validateAssessmentResult,
 };

@@ -6,7 +6,6 @@ module.exports = function buildCreateAssessment({ databaseServices }) {
     groupRepository,
     teacherRepository,
     courseRepository,
-    assetRepository,
   } = databaseServices;
 
   function parseAssetsArrayToInstantiatedAssetsArray(assets) {
@@ -40,8 +39,6 @@ module.exports = function buildCreateAssessment({ databaseServices }) {
       teacher,
       course,
     });
-    const persistedAssets = await assetRepository.createAll(assessment.assets);
-    assessment.assets = persistedAssets;
     const persistedAssessment = await assessmentRepository.create(assessment);
 
     return persistedAssessment.toJSON();

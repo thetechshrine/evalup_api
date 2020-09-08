@@ -2,11 +2,7 @@ const { Student, Account, Address } = require('../../database/entities');
 const accountEnums = require('../../database/enums/account');
 
 module.exports = function buildCreateStudent({ databaseServices }) {
-  const {
-    studentRepository,
-    accountRepository,
-    addressRepository,
-  } = databaseServices;
+  const { studentRepository } = databaseServices;
 
   async function execute({
     gender,
@@ -46,11 +42,6 @@ module.exports = function buildCreateStudent({ databaseServices }) {
       address,
     });
 
-    const persistedAccount = await accountRepository.create(account);
-    const persistedAddress = await addressRepository.create(address);
-
-    student.account = persistedAccount;
-    student.address = persistedAddress;
     const persistedStudent = await studentRepository.create(student);
 
     return persistedStudent.toJSON();

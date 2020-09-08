@@ -5,7 +5,7 @@ module.exports = class CourseRepository extends EntityRepository {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
-  findByGroudId() {
+  findAllByGroudId() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 };
