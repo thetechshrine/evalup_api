@@ -6,12 +6,20 @@ module.exports = function buildStudentFactory({ fakeDataGenerator }) {
     return countriesCodes[Math.floor(Math.random() * countriesCodes.length)];
   }
 
+  function pickARandomGender() {
+    const genders = Object.keys(studentEnums.genders);
+    return genders[Math.floor(Math.random() * genders.length)];
+  }
+
   return {
     generate(initialValues = {}) {
       return {
+        gender: pickARandomGender(),
+        lastName: fakeDataGenerator.generatePersonName(),
+        firstName: fakeDataGenerator.generatePersonName(),
         nationality: pickARandomCountryCode(),
-        addressId: fakeDataGenerator.generateId(),
-        accountId: fakeDataGenerator.generateId(),
+        birthDate: fakeDataGenerator.generateDate(),
+        phone: fakeDataGenerator.generatePhoneNumber(),
         ...initialValues,
       };
     },

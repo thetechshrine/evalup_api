@@ -18,6 +18,7 @@ describe('create group entity', () => {
 
   it('should successfully create a group if all properties are valid', () => {
     const group = new Group(shared.group);
+
     expect(group).to.have.property('id');
   });
 });

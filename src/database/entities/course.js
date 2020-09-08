@@ -59,6 +59,7 @@ module.exports = function buildCourse({
       this.#description = description;
       this.#credits = credits;
       this.#successNote = successNote;
+      this.#group = group;
 
       Object.seal(this);
     }

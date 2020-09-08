@@ -1,20 +1,15 @@
 const { expect } = require('chai');
-const { Teacher, PersonalInformation } = require('../../src/database/entities');
+const { Teacher, Account } = require('../../src/database/entities');
 const {
   TeacherFactory,
-  PersonalInformationFactory,
+  AccountFactory,
 } = require('../../src/database/factories');
 
 describe('create teacher entity', () => {
   const shared = {};
   beforeEach(() => {
-    shared.teacher = TeacherFactory.generate({
-      personalInformation: new PersonalInformation(
-        PersonalInformationFactory.generate({
-          phone: PersonalInformationFactory.getValidPhoneSample(),
-        })
-      ),
-    });
+    shared.teacher = TeacherFactory.generate();
+    shared.account = AccountFactory.generate();
   });
 
   it('should return an error if there is no type parameter', () => {
@@ -33,32 +28,18 @@ describe('create teacher entity', () => {
     }).to.throw();
   });
 
-  it('should return an error if there is no personal information parameter', () => {
-    delete shared.teacher.personalInformation;
+  it('should return an error if account parameter is not an instance of Account class', () => {
+    shared.teacher.account = {};
 
     expect(() => {
       new Teacher(shared.teacher);
     }).to.throw();
   });
 
-  it('should throw an error if address id parameter is not valid', () => {
-    shared.teacher.addressId = '';
-
-    expect(() => {
-      new Teacher(shared.teacher);
-    }).to.throw();
-  });
-
-  it('should throw an error if account id parameter is not valid', () => {
-    shared.teacher.accountId = '';
-
-    expect(() => {
-      new Teacher(shared.teacher);
-    }).to.throw();
-  });
-
-  it('should successfully create a teacher with all valid properties', () => {
+  it('should successfully create a teacher with an account', () => {
+    shared.teacher.account = new Account(shared.account);
     const teacher = new Teacher(shared.teacher);
+
     expect(teacher).to.have.property('id');
   });
 });

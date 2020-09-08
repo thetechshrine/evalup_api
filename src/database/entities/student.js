@@ -20,10 +20,10 @@ module.exports = function buildStudent({
 
   return class Student {
     #id;
-    #nationality;
     #gender;
     #lastName;
     #firstName;
+    #nationality;
     #phone;
     #birthDate;
     #account;
@@ -43,6 +43,7 @@ module.exports = function buildStudent({
       group,
     }) {
       commonDataValidator.validateId(id);
+      validateGender(gender);
       commonDataValidator.validatePersonName(lastName);
       commonDataValidator.validatePersonName(firstName);
       commonDataValidator.validatePhoneNumber(phone);

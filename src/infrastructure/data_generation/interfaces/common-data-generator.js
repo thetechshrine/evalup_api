@@ -15,7 +15,7 @@ module.exports = class CommonDataGenerator {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 
-  generatePhone() {
+  generatePhoneNumber() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 

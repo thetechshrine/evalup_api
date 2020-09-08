@@ -19,7 +19,7 @@ module.exports = function buildStudent({
     constructor({ id = commonDataGenerator.generateId(), type, account }) {
       commonDataValidator.validateId(id);
       validatetype(type);
-      entityValidator.validateAccount({ account });
+      entityValidator.validateAccount({ account, required: true });
 
       this.#id = id;
       this.#type = type;

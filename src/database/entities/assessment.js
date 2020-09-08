@@ -17,7 +17,7 @@ module.exports = function buildAssessment({
   function validateDatesConformity(startDate, endDate) {
     if (!startDate || new Date(startDate) >= new Date(endDate)) {
       throw new Error(
-        'startDate parameter is invalid or is later than endDate'
+        'startDate parameter must not be equal or later than endDate'
       );
     }
   }
@@ -63,7 +63,7 @@ module.exports = function buildAssessment({
       entityValidator.validateTeacher({ teacher });
       entityValidator.validateGroup({ group });
       entityValidator.validateCourse({ course });
-      assetUtils.validateAssets({ assets });
+      assetUtils.validateAssets({ assets, required: true });
 
       super();
       this.#id = id;

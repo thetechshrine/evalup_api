@@ -7,6 +7,7 @@ const Group = require('./group')(dependencies);
 const Course = require('./course')(dependencies);
 const Teacher = require('./teacher')(dependencies);
 const Asset = require('./asset')(dependencies);
+const Assessment = require('./assessment')(dependencies);
 const AssessmentResult = require('./assessment-result')(dependencies);
 
 module.exports = {
@@ -17,5 +18,6 @@ module.exports = {
   Course,
   Teacher,
   Asset,
+  Assessment,
   AssessmentResult,
 };
