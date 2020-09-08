@@ -15,7 +15,7 @@ module.exports = function buildMarkAssessmentResultsAsPublished({
     return 0;
   }
 
-  async function execute({ assessmentResultId, obtainedNote } = {}) {
+  async function execute({ assessmentResultId, obtainedNote, comments } = {}) {
     const assessmentResult = await assessmentResultRepository.checkAssessmentResultId(
       assessmentResultId
     );
@@ -23,6 +23,7 @@ module.exports = function buildMarkAssessmentResultsAsPublished({
     const obtainedCredits = await calculateObtainedCredits(assessmentResult);
     assessmentResult.obtainedCredits = obtainedCredits;
     assessmentResult.status = assessmentResultEnums.statuses.NOTED;
+    assessmentResult.comments = comments;
 
     const persistedAssessmentResult = await assessmentResultRepository.update(
       assessmentResult
