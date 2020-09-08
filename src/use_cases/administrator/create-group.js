@@ -1,14 +1,13 @@
+const { Group } = require('../../database/entities');
+
 module.exports = function buildCreateGroup({ databaseServices }) {
   const { groupRepository } = databaseServices;
 
-  async function execute({ code, title, description }) {
-    const group = await groupRepository.create({
-      code,
-      title,
-      description,
-    });
+  async function execute({ code, title, description } = {}) {
+    const group = new Group({ code, title, description });
+    const persistedGroup = await groupRepository.create(group);
 
-    return group.toJSON();
+    return persistedGroup.toJSON();
   }
 
   return {

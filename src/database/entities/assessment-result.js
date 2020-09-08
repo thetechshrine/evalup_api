@@ -23,7 +23,7 @@ module.exports = function buildAssessmentResult({
   }
 
   function validateObtainedCredits(obtainedCredits) {
-    if (!obtainedCredits || obtainedCredits <= 0) {
+    if (!obtainedCredits || obtainedCredits < 0) {
       throw new Error(
         'obtainedCredits parameter must be greater or equal to 0'
       );

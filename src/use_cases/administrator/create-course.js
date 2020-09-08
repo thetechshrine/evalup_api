@@ -1,3 +1,5 @@
+const { Course } = require('../../database/entities');
+
 module.exports = function buildCreateCourse({ databaseServices }) {
   const { courseRepository, groupRepository } = databaseServices;
 
@@ -8,20 +10,20 @@ module.exports = function buildCreateCourse({ databaseServices }) {
     credits,
     successNote,
     groupId,
-  }) {
-    const group = await groupRepository.findById(groupId);
-    if (!group) throw new Error(`Group ${groupId} not found`);
+  } = {}) {
+    const group = await groupRepository.checkGroupId(groupId);
 
-    const course = await courseRepository.create({
+    const course = new Course({
       code,
       title,
       description,
       credits,
       successNote,
-      groupId,
+      group,
     });
+    const persistedCourse = await courseRepository.create(course);
 
-    return course.toJSON();
+    return persistedCourse.toJSON();
   }
 
   return {

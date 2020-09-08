@@ -4,6 +4,7 @@ const accountEnums = require('../enums/account');
 module.exports = function buildAccount({
   commonDataGenerator,
   commonDataValidator,
+  security,
 }) {
   function validatePassword(password) {
     if (!password || password.length < 4) {
@@ -44,7 +45,7 @@ module.exports = function buildAccount({
       super();
       this.#id = id;
       this.#email = email;
-      this.#password = password;
+      this.#password = security.hashPassword(password);
       this.#role = role;
       this.#active = active;
       this.#createdAt = createdAt;
@@ -69,7 +70,7 @@ module.exports = function buildAccount({
 
     set password(password) {
       validatePassword(password);
-      this.#password = password;
+      this.#password = security.hashPassword(password);
       this.#updatedAt = Date.now();
     }
 

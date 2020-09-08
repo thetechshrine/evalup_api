@@ -3,7 +3,15 @@ module.exports = class EntityRepository {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
+  createAll() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
+
   update() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
+
+  updateAll() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
