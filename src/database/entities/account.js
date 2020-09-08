@@ -27,17 +27,28 @@ module.exports = function buildAccount({
     #role;
     #active;
 
-    constructor({ email, password, role } = {}) {
+    constructor({
+      id = commonDataGenerator.generateId(),
+      email,
+      password,
+      role,
+      active = true,
+      createdAt,
+      updatedAt,
+    } = {}) {
+      commonDataValidator.validateId(id);
       commonDataValidator.validateEmail(email);
       validatePassword(password);
       validateRole(role);
 
       super();
-      this.#id = commonDataGenerator.generateId();
+      this.#id = id;
       this.#email = email;
       this.#password = password;
       this.#role = role;
-      this.#active = true;
+      this.#active = active;
+      this.#createdAt = createdAt;
+      this.#updatedAt = updatedAt;
 
       Object.seal(this);
     }

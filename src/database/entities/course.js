@@ -1,28 +1,30 @@
+const entityValidator = require('../../application/helpers/entity-validator');
+
 module.exports = function buildCourse({
   commonDataGenerator,
   commonDataValidator,
 }) {
   function validateCode(code) {
     if (!code) {
-      throw new Error('Code parameter is required');
+      throw new Error('code parameter is required');
     }
   }
 
   function validateTitle(title) {
     if (!title) {
-      throw new Error('Title parameter is required');
+      throw new Error('title parameter is required');
     }
   }
 
   function validateCredits(credits) {
     if (!credits || credits <= 0) {
-      throw new Error(`Credits parameter must be greater than 0`);
+      throw new Error(`credits parameter must be greater than 0`);
     }
   }
 
   function validateSuccessNote(successNote) {
     if (!successNote || successNote <= 0) {
-      throw new Error(`Success note parameter must be greater than 0`);
+      throw new Error(`successNote parameter must be greater than 0`);
     }
   }
 
@@ -33,28 +35,31 @@ module.exports = function buildCourse({
     #description;
     #credits;
     #successNote;
-    #groupId;
+    #group;
 
     constructor({
+      id = commonDataGenerator.generateId(),
       code,
       title,
       description,
       credits,
       successNote,
-      groupId,
+      group,
     } = {}) {
+      commonDataValidator.validateId(id);
       validateCode(code);
       validateTitle(title);
       validateCredits(credits);
       validateSuccessNote(successNote);
-      commonDataValidator.validateId(groupId);
+      entityValidator.validateGroup({ group });
 
-      this.#id = commonDataGenerator.generateId();
+      this.#id = id;
       this.#code = code;
       this.#title = title;
       this.#description = description;
       this.#credits = credits;
       this.#successNote = successNote;
+      this.#group = group;
 
       Object.seal(this);
     }
@@ -107,13 +112,13 @@ module.exports = function buildCourse({
       return this.#successNote;
     }
 
-    set groupId(groupId) {
-      commonDataValidator.validateId(groupId);
-      this.#groupId = groupId;
+    set group(group) {
+      entityValidator.validateGroup({ group, required: true });
+      this.#group = group;
     }
 
-    get groupId() {
-      return this.#groupId;
+    get group() {
+      return this.#group;
     }
 
     toJSON() {
@@ -124,6 +129,7 @@ module.exports = function buildCourse({
         description: this.#description,
         credits: this.#credits,
         successNote: this.#successNote,
+        group: this.#group.toJSON(),
       };
     }
   };

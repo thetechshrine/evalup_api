@@ -1,4 +1,7 @@
-module.exports = function buildAddress({ commonDataGenerator }) {
+module.exports = function buildAddress({
+  commonDataGenerator,
+  commonDataValidator,
+}) {
   function validateStreetNumber(streetNumber) {
     if (!streetNumber || streetNumber <= 0) {
       throw new Error(`Invalid street number ${streetNumber}`);
@@ -37,14 +40,22 @@ module.exports = function buildAddress({ commonDataGenerator }) {
     #zipCode;
     #country;
 
-    constructor({ streetNumber, streetName, city, zipCode, country } = {}) {
+    constructor({
+      id = commonDataGenerator.generateId(),
+      streetNumber,
+      streetName,
+      city,
+      zipCode,
+      country,
+    } = {}) {
+      commonDataValidator.validateId(id);
       validateStreetNumber(streetNumber);
       validateStreetName(streetName);
       validateCity(city);
       validateZipCode(zipCode);
       validateCountry(country);
 
-      this.#id = commonDataGenerator.generateId();
+      this.#id = id;
       this.#streetNumber = streetNumber;
       this.#streetName = streetName;
       this.#city = city;

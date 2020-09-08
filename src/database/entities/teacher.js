@@ -1,5 +1,5 @@
 const teacherEnums = require('../enums/teacher');
-const commonEnums = require('../enums/common');
+const entityValidator = require('../../application/helpers/entity-validator');
 
 module.exports = function buildStudent({
   commonDataGenerator,
@@ -11,36 +11,19 @@ module.exports = function buildStudent({
       throw new Error(`Type must be one of ${teacherTypes}`);
   }
 
-  function validatePersonalInformation(personalInfomation) {
-    if (
-      !personalInfomation ||
-      personalInfomation.constructor.name !==
-        commonEnums.entitiesClassNames.PERSONAL_INFORMATION
-    ) {
-      throw new Error(
-        'Personal information parameter must be an instance of PersonalInformation class'
-      );
-    }
-  }
-
-  return class Student {
+  return class Teacher {
     #id;
     #type;
-    #personalInformation;
-    #addressId;
-    #accountId;
+    #account;
 
-    constructor({ type, personalInformation, addressId, accountId }) {
+    constructor({ id = commonDataGenerator.generateId(), type, account }) {
+      commonDataValidator.validateId(id);
       validatetype(type);
-      validatePersonalInformation(personalInformation);
-      commonDataValidator.validateId(addressId);
-      commonDataValidator.validateId(accountId);
+      entityValidator.validateAccount({ account, required: true });
 
-      this.#id = commonDataGenerator.generateId();
+      this.#id = id;
       this.#type = type;
-      this.#personalInformation = personalInformation;
-      this.#addressId = addressId;
-      this.#accountId = accountId;
+      this.#account = account;
 
       Object.seal(this);
     }
@@ -58,38 +41,20 @@ module.exports = function buildStudent({
       return this.#type;
     }
 
-    set personalInformation(personalInformation) {
-      validatePersonalInformation(personalInformation);
-      this.#personalInformation = personalInformation;
+    set account(account) {
+      entityValidator.validateAccount({ account, required: true });
+      this.#account = account;
     }
 
-    get personalInformation() {
-      return this.#personalInformation;
-    }
-
-    set addressId(addressId) {
-      commonDataValidator.validateId(addressId);
-      this.#addressId = addressId;
-    }
-
-    get addressId() {
-      return this.#addressId;
-    }
-
-    set accountId(accountId) {
-      commonDataValidator.validateId(accountId);
-      this.#accountId = accountId;
-    }
-
-    get accountId() {
-      return this.#accountId;
+    get account() {
+      return this.#account;
     }
 
     toJSON() {
       return {
         id: this.#id,
         type: this.#type,
-        personalInformation: this.#personalInformation.toJSON(),
+        account: this.#account.toJSON(),
       };
     }
   };

@@ -15,8 +15,8 @@ module.exports = class FakerDataGenerator extends CommonDataGenerator {
     return faker.internet.email();
   }
 
-  generatePhone() {
-    return faker.random.alphaNumeric(10);
+  generatePhoneNumber() {
+    return '0101010101';
   }
 
   generateCountryName() {

@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { Course, Group } = require('../../src/database/entities');
 const { CourseFactory, GroupFactory } = require('../../src/database/factories');
 
-describe('create account entity', () => {
+describe('create course entity', () => {
   const shared = {};
   beforeEach(() => {
     shared.course = CourseFactory.generate({
@@ -56,5 +56,19 @@ describe('create account entity', () => {
     expect(() => {
       new Course(shared.course);
     }).to.throw();
+  });
+
+  it('should return an error if group is not an instance of Group class', () => {
+    shared.course.group = {};
+
+    expect(() => {
+      new Course(shared.course);
+    }).to.throw();
+  });
+
+  it('should successfully create a course with all properties valid ', () => {
+    const course = new Course(shared.course);
+
+    expect(course).to.have.property('id');
   });
 });
