@@ -4,7 +4,9 @@ module.exports = function buildGetAssessments({ databaseServices }) {
   async function execute({ teacherId } = {}) {
     await teacherRepository.checkTeacherId(teacherId);
 
-    const assessments = await assessmentRepository.findByTeacherId(teacherId);
+    const assessments = await assessmentRepository.findAllByTeacherId(
+      teacherId
+    );
 
     return assessments.map((assessment) => assessment.toJSON());
   }

@@ -4,7 +4,7 @@ module.exports = function buildGetAssessmentResults({ databaseServices }) {
   async function execute({ assessmentId } = {}) {
     await assessmentRepository.checkAssessmentId(assessmentId);
 
-    const assessmentResults = await assessmentResultRepository.findByAssessmentId(
+    const assessmentResults = await assessmentResultRepository.findAllByAssessmentId(
       assessmentId
     );
 

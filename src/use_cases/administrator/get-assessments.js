@@ -4,7 +4,7 @@ module.exports = function buildGetAssessments({ databaseServices }) {
   async function execute({ groupId }) {
     await groupRepository.checkGroupId(groupId);
 
-    const assessments = await assessmentRepository.findByGroudId(groupId);
+    const assessments = await assessmentRepository.findAllByGroudId(groupId);
 
     return assessments.map((assessment) => assessment.toJSON());
   }

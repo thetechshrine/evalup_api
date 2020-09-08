@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const Security = require('./interfaces/security');
 
-module.exports = class CommonSecurity extends Security {
+module.exports = class CoreSecurity extends Security {
   async hashPassword(password) {
     const SALT = 10;
     return bcrypt.hash(password, SALT);

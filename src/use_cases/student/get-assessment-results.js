@@ -9,7 +9,7 @@ module.exports = function buildGetAssessmentResults({ databaseServices }) {
     await assessmentRepository.checkAssessmentId(assessmentId);
     await studentRepository.checkStudentId(studentId);
 
-    const assessmentResults = await assessmentResultRepository.findByAssessmentIdAndStudentId(
+    const assessmentResults = await assessmentResultRepository.findAllByAssessmentIdAndStudentId(
       assessmentId,
       studentId
     );
