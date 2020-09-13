@@ -1,5 +1,9 @@
 const teacherEnums = require('../enums/teacher');
 const entityValidator = require('../../application/helpers/entity-validator');
+const {
+  BadRequestError,
+  ParameterError,
+} = require('../../application/helpers/errors');
 
 module.exports = function buildStudent({
   commonDataGenerator,
@@ -7,8 +11,11 @@ module.exports = function buildStudent({
 }) {
   function validatetype(type) {
     const teacherTypes = Object.keys(teacherEnums.types);
-    if (!type || !teacherTypes.includes(type))
-      throw new Error(`Type must be one of ${teacherTypes}`);
+    if (!type) throw new ParameterError('Teacher type is required');
+    if (!teacherTypes.includes(type))
+      throw new BadRequestError(
+        `Teacher type must be one of [${teacherTypes}]`
+      );
   }
 
   return class Teacher {

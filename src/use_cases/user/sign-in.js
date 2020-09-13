@@ -9,7 +9,6 @@ module.exports = function buildSignIn({ databaseServices, security }) {
 
   async function execute({ email, password }) {
     const account = await accountRespository.findByEmail(email);
-    if (!account) throw new Error(`Account with email ${email} not found`);
 
     await security.comparePassword({
       accountPassword: account.password,

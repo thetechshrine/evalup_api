@@ -1,11 +1,9 @@
-const JoiCommonDataValidator = require('../../infrastructure/data_validation/joi-common-data-validator');
-const CoreDataGenerator = require('../../infrastructure/data_generation/core-data-generator');
 const FakerDataGenerator = require('../../infrastructure/data_generation/faker/faker-data-generator');
 const CoreSecurity = require('../../infrastructure/security/core-security');
+const MongooseDatabaseServices = require('../../infrastructure/data_processing/mongoose/mongoose-database-services');
 
 module.exports = {
-  commonDataValidator: new JoiCommonDataValidator(),
-  commonDataGenerator: new CoreDataGenerator(),
   fakeDataGenerator: new FakerDataGenerator(),
-  security: new CoreSecurity(),
+  securityServices: new CoreSecurity(),
+  databaseServices: new MongooseDatabaseServices(),
 };

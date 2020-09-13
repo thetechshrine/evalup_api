@@ -4,8 +4,8 @@ const Security = require('./interfaces/security');
 
 module.exports = class CoreSecurity extends Security {
   async hashPassword(password) {
-    const SALT = 10;
-    return bcrypt.hash(password, SALT);
+    const ROUNDS = 10;
+    return bcrypt.hash(password, ROUNDS);
   }
 
   async comparePassword({ accountPassword, password }) {

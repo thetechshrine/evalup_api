@@ -8,4 +8,8 @@ module.exports = class CourseRepository extends EntityRepository {
   findAllByGroudId() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
+
+  findByCode() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
 };

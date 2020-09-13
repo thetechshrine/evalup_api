@@ -4,6 +4,11 @@ const teacherEnums = require('../../../../database/enums/teacher');
 
 const teacherSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     type: {
       type: String,
       required: true,

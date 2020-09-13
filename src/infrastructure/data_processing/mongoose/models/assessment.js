@@ -4,6 +4,11 @@ const assessmentEnums = require('../../../../database/enums/assessment');
 
 const assessmentSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     title: {
       type: String,
       required: true,

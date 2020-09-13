@@ -4,6 +4,11 @@ const studentEnums = require('../../../../database/enums/student');
 
 const studentSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     gender: {
       type: String,
       required: true,
@@ -20,7 +25,7 @@ const studentSchema = new mongoose.Schema(
     nationality: {
       type: String,
       required: true,
-      enum: Object.values(studentEnums.countries),
+      enum: Object.keys(studentEnums.countries),
     },
     birthDate: {
       type: Date,

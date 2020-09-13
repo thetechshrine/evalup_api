@@ -1,4 +1,5 @@
 const { Assessment, Asset } = require('../../database/entities');
+const assetEnums = require('../../database/enums/asset');
 
 module.exports = function buildCreateAssessment({ databaseServices }) {
   const {
@@ -11,7 +12,13 @@ module.exports = function buildCreateAssessment({ databaseServices }) {
   function parseAssetsArrayToInstantiatedAssetsArray(assets) {
     if (!Array.isArray(assets)) throw new Error('assets must be an array');
 
-    return assets.map((asset) => new Asset(asset));
+    return assets.map(
+      (asset) =>
+        new Asset({
+          ...asset,
+          targetResource: assetEnums.targetResources.ASSESSMENT,
+        })
+    );
   }
 
   async function execute({

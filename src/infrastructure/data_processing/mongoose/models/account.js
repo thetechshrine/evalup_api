@@ -4,6 +4,11 @@ const accountEnums = require('../../../../database/enums/account');
 
 const accountSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     email: {
       type: String,
       required: true,

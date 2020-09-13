@@ -1,12 +1,13 @@
 const commonEnums = require('../../database/enums/common');
+const { ParameterError } = require('./errors');
 
 function validateEntity(entity, className, required) {
   if (!entity && required) {
-    throw new Error('entity parameter is mandatory');
+    throw new ParameterError(`${className} is required`);
   }
 
   if (entity && entity.constructor.name !== className) {
-    throw new Error(
+    throw new ParameterError(
       `entity parameter must be an instance of ${className} class`
     );
   }

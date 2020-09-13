@@ -4,6 +4,11 @@ const assetEnums = require('../../../../database/enums/asset');
 
 const assetSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     type: {
       type: String,
       required: true,

@@ -1,5 +1,9 @@
 const studentEnums = require('../enums/student');
 const entityValidator = require('../../application/helpers/entity-validator');
+const {
+  BadRequestError,
+  ParameterError,
+} = require('../../application/helpers/errors');
 
 module.exports = function buildStudent({
   commonDataGenerator,
@@ -7,15 +11,50 @@ module.exports = function buildStudent({
 }) {
   function validateGender(gender) {
     const personGenders = Object.values(studentEnums.genders);
-    if (!gender || !personGenders.includes(gender)) {
-      throw new Error(`Gender must be one of ${personGenders}`);
+    if (!gender) {
+      throw new ParameterError('Student gender is required');
+    }
+    if (!personGenders.includes(gender)) {
+      throw new BadRequestError(
+        `Student gender must be one of [${personGenders}]`
+      );
     }
   }
 
   function validateNationality(nationality) {
     const countriesCodes = Object.keys(studentEnums.countries);
-    if (!nationality || !countriesCodes.includes(nationality))
-      throw new Error(`Country must be one of ${countriesCodes}`);
+    if (!nationality) {
+      throw new ParameterError(`Student country is required`);
+    }
+    if (!countriesCodes.includes(nationality)) {
+      throw new BadRequestError(
+        `Student country must be one of ${countriesCodes}`
+      );
+    }
+  }
+
+  function validateLastName(lastName) {
+    if (!lastName) {
+      throw new ParameterError(`Student last name is required`);
+    }
+  }
+
+  function validateFirstName(firstName) {
+    if (!firstName) {
+      throw new ParameterError(`Student first name is required`);
+    }
+  }
+
+  function validatePhoneNumber(phoneNumber) {
+    if (!phoneNumber) {
+      throw new ParameterError(`Student phone number is required`);
+    }
+    const phoneNumberRegex = /^[0]{1}\d{9}$/;
+    if (!phoneNumberRegex.test(phoneNumber)) {
+      throw new BadRequestError(
+        `Student phone number must be of length 9 or 10 with 0 as start`
+      );
+    }
   }
 
   return class Student {
@@ -44,14 +83,14 @@ module.exports = function buildStudent({
     }) {
       commonDataValidator.validateId(id);
       validateGender(gender);
-      commonDataValidator.validatePersonName(lastName);
-      commonDataValidator.validatePersonName(firstName);
-      commonDataValidator.validatePhoneNumber(phone);
+      validateLastName(lastName);
+      validateFirstName(firstName);
+      validatePhoneNumber(phone);
       commonDataValidator.validateDate(birthDate);
       validateNationality(nationality);
-      entityValidator.validateAccount({ account });
-      entityValidator.validateAddress({ address });
-      entityValidator.validateGroup({ group });
+      entityValidator.validateAccount({ account, required: true });
+      entityValidator.validateAddress({ address, required: true });
+      entityValidator.validateGroup({ group, required: true });
 
       this.#id = id;
       this.#gender = gender;
@@ -81,7 +120,7 @@ module.exports = function buildStudent({
     }
 
     set lastName(lastName) {
-      commonDataValidator.validatePersonName(lastName);
+      validateLastName(lastName);
       this.#lastName = lastName;
     }
 
@@ -90,7 +129,7 @@ module.exports = function buildStudent({
     }
 
     set firstName(firstName) {
-      commonDataValidator.validatePersonName(firstName);
+      validateFirstName(firstName);
       this.#firstName = firstName;
     }
 
@@ -99,7 +138,7 @@ module.exports = function buildStudent({
     }
 
     set phone(phone) {
-      commonDataValidator.validatePhoneNumber(phone);
+      validatePhoneNumber(phone);
       this.#phone = phone;
     }
 

@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     streetNumber: {
       type: Number,
       required: true,

@@ -1,34 +1,49 @@
+const {
+  BadRequestError,
+  ParameterError,
+} = require('../../application/helpers/errors');
+
 module.exports = function buildAddress({
   commonDataGenerator,
   commonDataValidator,
 }) {
   function validateStreetNumber(streetNumber) {
-    if (!streetNumber || streetNumber <= 0) {
-      throw new Error(`Invalid street number ${streetNumber}`);
+    if (!streetNumber) {
+      throw new ParameterError(`Address street number is required`);
+    }
+    if (!Number.isInteger(Number(streetNumber))) {
+      throw new BadRequestError(
+        `Address street number must be a numeric value`
+      );
+    }
+    if (streetNumber <= 0) {
+      throw new BadRequestError(
+        `Address street number ${streetNumber} is invalid`
+      );
     }
   }
 
   function validateStreetName(streetName) {
     if (!streetName) {
-      throw new Error('Street name parameter is required');
+      throw new ParameterError('Address street name is required');
     }
   }
 
   function validateCity(city) {
     if (!city) {
-      throw new Error('City parameter is required');
+      throw new ParameterError('Address city is required');
     }
   }
 
   function validateZipCode(zipCode) {
     if (!zipCode) {
-      throw new Error('Zip code parameter is required');
+      throw new ParameterError('Address zip code is required');
     }
   }
 
   function validateCountry(country) {
     if (!country) {
-      throw new Error('Country parameter is required');
+      throw new ParameterError('Address country is required');
     }
   }
 

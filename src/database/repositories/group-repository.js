@@ -4,4 +4,8 @@ module.exports = class GroupRepository extends EntityRepository {
   checkGroupId() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
+
+  findByCode() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
 };

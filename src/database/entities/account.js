@@ -1,21 +1,32 @@
 const TimeEntity = require('../../application/helpers/time-entity');
 const accountEnums = require('../enums/account');
+const {
+  BadRequestError,
+  ParameterError,
+} = require('../../application/helpers/errors');
 
 module.exports = function buildAccount({
   commonDataGenerator,
   commonDataValidator,
-  security,
 }) {
   function validatePassword(password) {
-    if (!password || password.length < 4) {
-      throw new Error('Password must include at least 4 characters');
+    if (!password) {
+      throw new ParameterError('Account password is required');
+    }
+    if (password.length < 4) {
+      throw new BadRequestError(
+        'Account password must include at least 4 characters'
+      );
     }
   }
 
   function validateRole(role) {
     const accountRoles = Object.values(accountEnums.roles);
-    if (!role || !accountRoles.includes(role)) {
-      throw new Error(`Role must be one of [${accountRoles}]`);
+    if (!role) {
+      throw new ParameterError('Account role is required');
+    }
+    if (!accountRoles.includes(role)) {
+      throw new Error(`Account role must be one of [${accountRoles}]`);
     }
   }
 
@@ -45,7 +56,7 @@ module.exports = function buildAccount({
       super();
       this.#id = id;
       this.#email = email;
-      this.#password = security.hashPassword(password);
+      this.#password = password;
       this.#role = role;
       this.#active = active;
       this.#createdAt = createdAt;
@@ -70,7 +81,7 @@ module.exports = function buildAccount({
 
     set password(password) {
       validatePassword(password);
-      this.#password = security.hashPassword(password);
+      this.#password = password;
       this.#updatedAt = Date.now();
     }
 
