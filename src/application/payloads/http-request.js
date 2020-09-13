@@ -2,11 +2,13 @@ module.exports = class HttpRequest {
   #body;
   #params;
   #query;
+  #file;
 
-  constructor({ body, params, query }) {
+  constructor({ body, params, query, file }) {
     this.#body = body;
     this.#params = params;
     this.#query = query;
+    this.#file = file;
 
     Object.freeze(this);
   }
@@ -21,6 +23,10 @@ module.exports = class HttpRequest {
 
   get query() {
     return this.#query;
+  }
+
+  get file() {
+    return this.#file;
   }
 
   static parseExpressRequest(expresRequest) {

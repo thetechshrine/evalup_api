@@ -28,4 +28,8 @@ module.exports = class HttpResponse {
   static created({ message, data }) {
     return new HttpResponse({ message, data, status: 201, success: true });
   }
+
+  static succeeded({ message, data }) {
+    return new HttpResponse({ message, data, status: 200, success: true });
+  }
 };

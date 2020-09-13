@@ -1,4 +1,4 @@
-const JoiCommonDataValidator = require('../../infrastructure/data_validation/joi-common-data-validator');
+const JoiCommonDataValidator = require('../../infrastructure/data_validation/joi/joi-common-data-validator');
 const CoreDataGenerator = require('../../infrastructure/data_generation/core-data-generator');
 const buildAccount = require('./account');
 const buildAddress = require('./address');

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const CommonDataValidator = require('./interfaces/common-data-validator');
+const CommonDataValidator = require('../interfaces/common-data-validator');
 
 module.exports = class JoiCommonDataValidator extends CommonDataValidator {
   validateEmail(email) {
