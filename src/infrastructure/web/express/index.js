@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
+const logger = require('../../logger');
+
 const buildFileStorageRoutes = require('./routes/file-storage');
 const buildAccountRoutes = require('./routes/account');
 const buildTeacherRoutes = require('./routes/teacher');
@@ -29,9 +31,9 @@ function start(dependencies) {
   app.use('/groups', buildGroupRoutes(dependencies));
   app.use(errorHandler);
 
-  const PORT = 5000;
+  const PORT = process.env.PORT || process.env.SERVER_PORT;
   app.listen(PORT, () => {
-    console.log(`server started on port ${PORT}`);
+    logger.info(`server has started on port ${PORT}`);
   });
 }
 

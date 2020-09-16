@@ -3,6 +3,8 @@ const md5 = require('md5');
 const DatauriParser = require('datauri/parser');
 const path = require('path');
 
+const logger = require('../../logger');
+
 const FileStorageServices = require('../interfaces/file-storage-services');
 const FileStorageServicesResponse = require('../../../application/payloads/file-storage-services-response');
 
@@ -58,6 +60,6 @@ module.exports = class CloudinaryStorageServices extends FileStorageServices {
     this.configCloudinary();
 
     await cloudinaryV2.uploader.destroy(remoteId);
-    console.log(`File ${remoteId} successfully deleted`);
+    logger.info(`Cloudinary file ${remoteId} successfully deleted`);
   }
 };

@@ -7,8 +7,6 @@ const MongooseStudentRepository = require('./repositories/mongoose-student-repos
 const MongooseTeacherRepository = require('./repositories/mongoose-teacher-repository');
 const MongooseGroupRepository = require('./repositories/mongoose-group-repository');
 
-const MONGODB_URI = 'mongodb://localhost:27017/evalUp';
-
 module.exports = class MongooseDatabaseServices extends DatabaseServices {
   #databaseConnection;
 
@@ -21,7 +19,7 @@ module.exports = class MongooseDatabaseServices extends DatabaseServices {
   }
 
   async initDatabase() {
-    this.#databaseConnection = await mongoose.connect(MONGODB_URI, {
+    this.#databaseConnection = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
