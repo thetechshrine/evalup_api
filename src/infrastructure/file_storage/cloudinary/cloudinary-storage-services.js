@@ -60,6 +60,6 @@ module.exports = class CloudinaryStorageServices extends FileStorageServices {
     this.configCloudinary();
 
     await cloudinaryV2.uploader.destroy(remoteId);
-    logger.info(`Cloudinary file ${remoteId} successfully deleted`);
+    logger.info(`cloudinary file ${remoteId} successfully deleted`);
   }
 };

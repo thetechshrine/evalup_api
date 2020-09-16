@@ -10,12 +10,14 @@ const buildTeacherRoutes = require('./routes/teacher');
 const buildStudentRoutes = require('./routes/student');
 const buildGroupRoutes = require('./routes/group');
 
+const loggingHandler = require('./middlewares/logging-handler');
 const uploadHandler = require('./middlewares/upload-handler');
 const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 
 function start(dependencies) {
+  app.use(loggingHandler);
   app.use(cors());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
