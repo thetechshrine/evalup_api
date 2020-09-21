@@ -5,7 +5,11 @@ module.exports = class AccountRepository extends EntityRepository {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
-  checkAccountEmail() {
+  checkByEmail() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
+
+  ensureThereIsNoAccountRelatedToTheProvidedEmail() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 };

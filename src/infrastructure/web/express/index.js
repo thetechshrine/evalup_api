@@ -9,6 +9,7 @@ const buildAccountRoutes = require('./routes/account');
 const buildTeacherRoutes = require('./routes/teacher');
 const buildStudentRoutes = require('./routes/student');
 const buildGroupRoutes = require('./routes/group');
+const buildAssessmentRoutes = require('./routes/assessment');
 
 const loggingHandler = require('./middlewares/logging-handler');
 const uploadHandler = require('./middlewares/upload-handler');
@@ -27,10 +28,11 @@ function start(dependencies) {
     uploadHandler,
     buildFileStorageRoutes(dependencies)
   );
-  app.use('/accounts', buildAccountRoutes(dependencies));
+  app.use('/auth', buildAccountRoutes(dependencies));
   app.use('/teachers', buildTeacherRoutes(dependencies));
   app.use('/students', buildStudentRoutes(dependencies));
   app.use('/groups', buildGroupRoutes(dependencies));
+  app.use('/assessments', buildAssessmentRoutes(dependencies));
   app.use(errorHandler);
 
   const PORT = process.env.PORT || process.env.SERVER_PORT;

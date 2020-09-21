@@ -1,41 +1,42 @@
-const { ParameterError } = require('../../application/helpers/errors');
+const TimeEntity = require('../../application/helpers/time-entity');
 
-module.exports = function buildCourse({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildCourse({ commonDataGenerator, commonDataValidator }) {
   function validateCode(code) {
-    if (!code) {
-      throw new ParameterError('Group code is required');
-    }
+    commonDataValidator.validateStringAsRequired(code, 'Group code');
   }
 
   function validateTitle(title) {
-    if (!title) {
-      throw new ParameterError('Group title is required');
-    }
+    commonDataValidator.validateStringAsRequired(title, 'Group title');
   }
 
-  return class Group {
+  function validateDescription(description) {
+    commonDataValidator.validateString(description, 'Group description');
+  }
+
+  return class Group extends TimeEntity {
     #id;
+    #createdAt;
+    #updatedAt;
     #code;
     #title;
     #description;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      code,
-      title,
-      description,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ id, code, title, description, createdAt, updatedAt } = {}) {
+      super();
+
+      commonDataValidator.validateIdAsRequired(id, 'Group id');
       validateCode(code);
       validateTitle(title);
+      validateDescription(description);
+      commonDataValidator.validateDateAsRequired(createdAt, 'Group createdAt');
+      commonDataValidator.validateDateAsRequired(updatedAt, 'Group updatedAt');
 
       this.#id = id;
       this.#code = code;
       this.#title = title;
       this.#description = description;
+      this.#createdAt = createdAt;
+      this.#updatedAt = updatedAt;
 
       Object.seal(this);
     }
@@ -71,10 +72,16 @@ module.exports = function buildCourse({
     toJSON() {
       return {
         id: this.#id,
+        createdAt: this.#createdAt,
+        updatedAt: this.#updatedAt,
         code: this.#code,
         title: this.#title,
         description: this.#description,
       };
+    }
+
+    static newInstance({ id = commonDataGenerator.generateId(), code, title, description, createdAt = Date.now(), updatedAt = Date.now() } = {}) {
+      return new Group({ id, code, title, description, createdAt, updatedAt });
     }
   };
 };

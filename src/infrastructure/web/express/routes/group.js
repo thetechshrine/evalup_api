@@ -2,6 +2,7 @@ const express = require('express');
 
 const HttpRequest = require('../../../../application/payloads/http-request');
 const buildGroupController = require('../../../../controllers/group-controller');
+const buildCourseRoutes = require('./course');
 
 module.exports = function buildRouter(dependecies) {
   const router = express.Router();
@@ -17,6 +18,8 @@ module.exports = function buildRouter(dependecies) {
         next(error);
       });
   });
+
+  router.use('/:groupId/courses', buildCourseRoutes(dependecies));
 
   return router;
 };

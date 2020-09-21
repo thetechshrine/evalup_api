@@ -1,30 +1,23 @@
 const assessmentResultEnums = require('../../database/enums/assessment-result');
 
-module.exports = function buildMarkAssessmentResultsAsPublished({
-  databaseServices,
-}) {
+module.exports = function buildMarkAssessmentResultsAsPublished({ databaseServices }) {
   const { assessmentResultRepository, assessmentRepository } = databaseServices;
 
   async function execute({ assessmentId } = {}) {
-    await assessmentRepository.checkAssessmentId(assessmentId);
+    await assessmentRepository.checkById(assessmentId);
 
-    const assessmentResults = assessmentResultRepository.findAllByAssessmentId(
-      assessmentId
-    );
+    const foundAssessmentResults = assessmentResultRepository.findAllByAssessmentId(assessmentId);
 
     const persistedAssessmentResults = await assessmentResultRepository.updateAll(
-      assessmentResults.map((assessmentResult) => {
-        const assessmentResultToUpdate = assessmentResult;
-        assessmentResultToUpdate.status =
-          assessmentResultEnums.statuses.PUBLISHED;
+      foundAssessmentResults.map((foundAssessmentResult) => {
+        const foundAssessmentResultCopy = foundAssessmentResult;
+        foundAssessmentResultCopy.status = assessmentResultEnums.statuses.PUBLISHED;
 
-        return assessmentResultToUpdate;
+        return foundAssessmentResultCopy;
       })
     );
 
-    return persistedAssessmentResults.map((assessmentResult) =>
-      assessmentResult.toJSON()
-    );
+    return persistedAssessmentResults.map((assessmentResult) => assessmentResult.toJSON());
   }
 
   return {

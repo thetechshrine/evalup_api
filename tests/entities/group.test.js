@@ -1,24 +1,36 @@
 const { expect } = require('chai');
 const { Group } = require('../../src/database/entities');
 const { GroupFactory } = require('../../src/database/factories');
+const { ParameterError } = require('../../src/application/helpers/errors');
 
-describe('create group entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.group = GroupFactory.generate();
-  });
+describe('Group - Entity', () => {
+  const shared = {
+    requiredProperties: ['code', 'title'],
+  };
 
-  it('should return an error if there is no code parameter', () => {
-    delete shared.group.code;
+  describe('create new group', () => {
+    beforeEach(() => {
+      shared.groupData = GroupFactory.generate();
+    });
 
-    expect(() => {
-      new Group(shared.group);
-    }).to.throw();
-  });
+    it('should succeed if all parameters are correct', () => {
+      Group.newInstance(shared.groupData);
+    });
 
-  it('should successfully create a group if all properties are valid', () => {
-    const group = new Group(shared.group);
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.groupData[requiredProperty];
 
-    expect(group).to.have.property('id');
+        expect(() => {
+          Group.newInstance(shared.groupData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
+
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
   });
 });

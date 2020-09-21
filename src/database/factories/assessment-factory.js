@@ -1,3 +1,4 @@
+const { getDefaultProperties } = require('../../application/helpers/factory-utils');
 const assessmentEnums = require('../enums/assessment');
 
 module.exports = function buildStudentFactory({ fakeDataGenerator }) {
@@ -13,6 +14,7 @@ module.exports = function buildStudentFactory({ fakeDataGenerator }) {
   return {
     generate(initialValues = {}) {
       return {
+        ...getDefaultProperties(fakeDataGenerator),
         title: fakeDataGenerator.generateStringOfLength(10),
         type: pickARandomType(),
         startDate,

@@ -10,6 +10,11 @@ module.exports = class MongooseAddressRepository extends AddressRespository {
     return new Address(address);
   }
 
+  async findById(addressId) {
+    const address = await AddressModel.findOne({ id: addressId });
+    return address ? new Address(address) : null;
+  }
+
   async delete(addressId) {
     await AddressModel.deleteOne({ id: addressId });
   }

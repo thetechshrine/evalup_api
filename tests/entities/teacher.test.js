@@ -1,45 +1,54 @@
 const { expect } = require('chai');
 const { Teacher, Account } = require('../../src/database/entities');
-const {
-  TeacherFactory,
-  AccountFactory,
-} = require('../../src/database/factories');
+const { TeacherFactory, AccountFactory } = require('../../src/database/factories');
+const { ParameterError, BadRequestError } = require('../../src/application/helpers/errors');
 
-describe('create teacher entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.teacher = TeacherFactory.generate();
-    shared.account = AccountFactory.generate();
-  });
+describe('Teacher - Entity', () => {
+  const shared = {
+    requiredProperties: ['type', 'gender', 'lastName', 'firstName', 'account'],
+  };
 
-  it('should return an error if there is no type parameter', () => {
-    delete shared.teacher.type;
+  describe('create new teacher', () => {
+    beforeEach(() => {
+      const account = new Account(AccountFactory.generate());
 
-    expect(() => {
-      new Teacher(shared.teacher);
-    }).to.throw();
-  });
+      shared.teacherData = TeacherFactory.generate({ account });
+    });
 
-  it('should throw an error if type parameter is not valid', () => {
-    shared.teacher.type = 'type';
+    it('should succeed if all properties are valid', () => {
+      Teacher.newInstance(shared.teacherData);
+    });
 
-    expect(() => {
-      new Teacher(shared.teacher);
-    }).to.throw();
-  });
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.teacherData[requiredProperty];
 
-  it('should return an error if account parameter is not an instance of Account class', () => {
-    shared.teacher.account = {};
+        expect(() => {
+          Teacher.newInstance(shared.teacherData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
 
-    expect(() => {
-      new Teacher(shared.teacher);
-    }).to.throw();
-  });
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
 
-  it('should successfully create a teacher with an account', () => {
-    shared.teacher.account = new Account(shared.account);
-    const teacher = new Teacher(shared.teacher);
+    it('should fail if gender is not an authorized gender', () => {
+      shared.teacherData.type = 'type';
 
-    expect(teacher).to.have.property('id');
+      expect(() => {
+        Teacher.newInstance(shared.teacherData);
+      }).to.throw(BadRequestError, /(?:type)/);
+    });
+
+    it('should fail if gender is not an authorized gender', () => {
+      shared.teacherData.gender = 'gender';
+
+      expect(() => {
+        Teacher.newInstance(shared.teacherData);
+      }).to.throw(BadRequestError, /(?:gender)/);
+    });
   });
 });

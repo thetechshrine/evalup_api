@@ -4,15 +4,12 @@ const DatauriParser = require('datauri/parser');
 const path = require('path');
 
 const logger = require('../../logger');
-
 const FileStorageServices = require('../interfaces/file-storage-services');
 const FileStorageServicesResponse = require('../../../application/payloads/file-storage-services-response');
+const { BadRequestError } = require('../../../application/helpers/errors');
 
 function parseFileToDataUriContent(file) {
-  const dataUri = new DatauriParser().format(
-    path.extname(file.originalname).toString(),
-    file.buffer
-  );
+  const dataUri = new DatauriParser().format(path.extname(file.originalname).toString(), file.buffer);
   return dataUri.content;
 }
 
@@ -32,22 +29,18 @@ module.exports = class CloudinaryStorageServices extends FileStorageServices {
     return uploadedFileEtag === responseEtag;
   }
 
-  async saveFile(file, folder) {
+  async saveFileResource(fileResource) {
+    const { file, folder } = fileResource.toJSON();
+
     this.configCloudinary();
 
-    const response = await cloudinaryV2.uploader.upload(
-      parseFileToDataUriContent(file),
-      {
-        folder: `${CloudinaryStorageServices.ROOT_FOLDER}/${folder}`,
-      }
-    );
-    const fileCorrectlyUploaded = await this.isFileCorrectlyUploaded(
-      file,
-      response.etag
-    );
+    const response = await cloudinaryV2.uploader.upload(parseFileToDataUriContent(file), {
+      folder: `${CloudinaryStorageServices.ROOT_FOLDER}/${folder}`,
+    });
+    const fileCorrectlyUploaded = await this.isFileCorrectlyUploaded(file, response.etag);
     if (!fileCorrectlyUploaded) {
       this.deleteFile(response.public_id);
-      throw new Error('Unable to upload file');
+      throw new BadRequestError(`Unable to upload file ${JSON.parse(file)} to folder ${folder}`);
     }
 
     return new FileStorageServicesResponse({
@@ -56,7 +49,7 @@ module.exports = class CloudinaryStorageServices extends FileStorageServices {
     });
   }
 
-  async deleteFile(remoteId) {
+  async deleteFileResource(remoteId) {
     this.configCloudinary();
 
     await cloudinaryV2.uploader.destroy(remoteId);

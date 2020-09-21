@@ -2,28 +2,49 @@ const TimeEntity = require('../../application/helpers/time-entity');
 const assessmentEnums = require('../enums/assessment');
 const entityValidator = require('../../application/helpers/entity-validator');
 const assetUtils = require('../../application/helpers/asset-utils');
+const { BadRequestError } = require('../../application/helpers/errors');
 
-module.exports = function buildAssessment({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildAssessment({ commonDataGenerator, commonDataValidator }) {
   function validateType(type) {
     const assessmentResultTypes = Object.values(assessmentEnums.types);
-    if (!assessmentResultTypes.includes(type)) {
-      throw new Error(`type must be one of ${assessmentResultTypes}`);
-    }
+
+    commonDataValidator.validateEnumAsRequired(type, assessmentResultTypes, 'Assessment type');
   }
 
   function validateDatesConformity(startDate, endDate) {
-    if (!startDate || new Date(startDate) >= new Date(endDate)) {
-      throw new Error(
-        'startDate parameter must not be equal or later than endDate'
-      );
+    commonDataValidator.validateDateAsRequired(startDate, 'Assessment startDate');
+    commonDataValidator.validateDateAsRequired(endDate, 'Assessment endDate');
+
+    if (new Date(startDate) >= new Date(endDate)) {
+      throw new BadRequestError('Assessment startDate parameter must not be later than endDate');
     }
   }
 
   function validateTitle(title) {
-    if (!title) throw new Error('title parameter is mandatory');
+    commonDataValidator.validateStringAsRequired(title, 'Assessment title');
+  }
+
+  function validateDescription(description) {
+    commonDataValidator.validateString(description, 'Assessment description');
+  }
+
+  function validateAssets(assets) {
+    const assetsArrayMinLength = 1;
+    commonDataValidator.validateArrayAsRequired(assets, assetsArrayMinLength, 'Assessement assets');
+
+    assetUtils.validateAssets({ assets, required: true });
+  }
+
+  function validateGroup(group, required = false) {
+    entityValidator.validateGroup({ group, required, errorPrefix: 'Assessment group' });
+  }
+
+  function validateTeacher(teacher, required = false) {
+    entityValidator.validateTeacher({ teacher, required, errorPrefix: 'Assessment teacher' });
+  }
+
+  function validateCourse(course, required = false) {
+    entityValidator.validateCourse({ course, required, errorPrefix: 'Assessment course' });
   }
 
   return class Assessment extends TimeEntity {
@@ -40,40 +61,31 @@ module.exports = function buildAssessment({
     #group;
     #assets;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      type,
-      title,
-      description,
-      startDate,
-      endDate,
-      teacher,
-      course,
-      group,
-      assets,
-      createdAt,
-      updatedAt,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ id, type, title, description, startDate, endDate, teacher, course, group, assets, createdAt, updatedAt } = {}) {
+      super();
+
+      commonDataValidator.validateIdAsRequired(id, 'Assessment id');
       validateType(type);
       validateTitle(title);
-      commonDataValidator.validateDate(startDate);
-      commonDataValidator.validateDate(endDate);
+      validateDescription(description);
       validateDatesConformity(startDate, endDate);
-      entityValidator.validateTeacher({ teacher });
-      entityValidator.validateGroup({ group });
-      entityValidator.validateCourse({ course });
-      assetUtils.validateAssets({ assets, required: true });
+      validateCourse(course);
+      validateGroup(group);
+      validateTeacher(teacher);
+      validateAssets(assets);
+      commonDataValidator.validateDateAsRequired(createdAt, 'Assessment createdAt');
+      commonDataValidator.validateDateAsRequired(updatedAt, 'Assessment updatedAt');
 
-      super();
       this.#id = id;
       this.#type = type;
+      this.#title = title;
       this.#description = description;
       this.#startDate = startDate;
       this.#endDate = endDate;
       this.#teacher = teacher;
       this.#group = group;
       this.#course = course;
+      this.#assets = assets;
       this.#createdAt = createdAt;
       this.#updatedAt = updatedAt;
 
@@ -129,7 +141,7 @@ module.exports = function buildAssessment({
     }
 
     set teacher(teacher) {
-      entityValidator.validateTeacher({ teacher, required: true });
+      validateTeacher(teacher, true);
       this.#teacher = teacher;
     }
 
@@ -138,7 +150,7 @@ module.exports = function buildAssessment({
     }
 
     set course(course) {
-      entityValidator.validateCourse({ course, required: true });
+      validateCourse(course, true);
       this.#course = course;
     }
 
@@ -147,7 +159,7 @@ module.exports = function buildAssessment({
     }
 
     set group(group) {
-      entityValidator.validateGroup({ group, required: true });
+      validateGroup(group, true);
       this.#group = group;
     }
 
@@ -156,7 +168,7 @@ module.exports = function buildAssessment({
     }
 
     set assets(assets) {
-      assetUtils.validateAssets({ assets, required: true });
+      validateAssets(assets);
       this.#assets = assets;
     }
 
@@ -174,11 +186,45 @@ module.exports = function buildAssessment({
         description: this.#description,
         startDate: this.#startDate,
         endDate: this.#endDate,
-        teacher: this.#teacher.toJSON(),
-        course: this.#course.toJSON(),
-        group: this.#group.toJSON(),
+        teacher: this.#teacher ? this.#teacher.toJSON() : {},
+        course: this.#course ? this.#course.toJSON() : {},
+        group: this.#group ? this.#group.toJSON() : {},
         asset: assetUtils.parseAssetsToJSONArray(this.#assets),
       };
+    }
+
+    static newInstance({
+      id = commonDataGenerator.generateId(),
+      type,
+      title,
+      description,
+      startDate,
+      endDate,
+      teacher,
+      course,
+      group,
+      assets,
+      createdAt = Date.now(),
+      updatedAt = Date.now(),
+    } = {}) {
+      validateCourse(course, true);
+      validateGroup(group, true);
+      validateTeacher(teacher, true);
+
+      return new Assessment({
+        id,
+        type,
+        title,
+        description,
+        startDate,
+        endDate,
+        teacher,
+        course,
+        group,
+        assets,
+        createdAt,
+        updatedAt,
+      });
     }
   };
 };

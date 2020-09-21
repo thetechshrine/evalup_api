@@ -1,55 +1,60 @@
 const { expect } = require('chai');
 const { Asset } = require('../../src/database/entities');
 const { AssetFactory } = require('../../src/database/factories');
+const { ParameterError, BadRequestError } = require('../../src/application/helpers/errors');
 
-describe('create asset entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.asset = AssetFactory.generate();
-  });
+describe('Asset - Entity', () => {
+  const shared = {
+    requiredProperties: ['type', 'role', 'targetResource', 'url', 'remoteId'],
+  };
 
-  it('should return an error if there is no type parameter', () => {
-    delete shared.asset.type;
+  describe('create new asset', () => {
+    beforeEach(() => {
+      shared.assetData = AssetFactory.generate();
+    });
 
-    expect(() => {
-      new Asset(shared.asset);
-    }).to.throw();
-  });
+    it('should succeed if all properties area valid', () => {
+      Asset.newInstance(shared.assetData);
+    });
 
-  it('should return an error if type is not valid', () => {
-    shared.asset.type = 'type';
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.assetData[requiredProperty];
 
-    expect(() => {
-      new Asset(shared.asset);
-    }).to.throw();
-  });
+        expect(() => {
+          Asset.newInstance(shared.assetData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
 
-  it('should return an error if there is no role parameter', () => {
-    delete shared.asset.role;
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
 
-    expect(() => {
-      new Asset(shared.asset);
-    }).to.throw();
-  });
+    it('should fail if type is not an authorized type', () => {
+      shared.assetData.type = 'type';
 
-  it('should return an error if role is not valid', () => {
-    shared.asset.role = 'role';
+      expect(() => {
+        Asset.newInstance(shared.assetData);
+      }).to.throw(BadRequestError, /(?:type)/);
+    });
 
-    expect(() => {
-      new Asset(shared.asset);
-    }).to.throw();
-  });
+    it('should fail if role is not an authorized role', () => {
+      shared.assetData.role = 'role';
 
-  it('should return an error if url is not valid', () => {
-    shared.asset.url = 'url';
+      expect(() => {
+        Asset.newInstance(shared.assetData);
+      }).to.throw(BadRequestError, /(?:role)/);
+    });
 
-    expect(() => {
-      new Asset(shared.asset);
-    }).to.throw();
-  });
+    it('should fail if targetResource is not an authorized targetResource', () => {
+      shared.assetData.targetResource = 'targetResource';
 
-  it('should successfully create an asset if all properties are valid', () => {
-    const asset = new Asset(shared.asset);
-    expect(asset).to.have.property('id');
+      expect(() => {
+        Asset.newInstance(shared.assetData);
+      }).to.throw(BadRequestError, /(?:targetResource)/);
+    });
   });
 });

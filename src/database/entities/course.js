@@ -1,35 +1,40 @@
+const TimeEntity = require('../../application/helpers/time-entity');
 const entityValidator = require('../../application/helpers/entity-validator');
+const { BadRequestError } = require('../../application/helpers/errors');
 
-module.exports = function buildCourse({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildCourse({ commonDataGenerator, commonDataValidator }) {
   function validateCode(code) {
-    if (!code) {
-      throw new Error('code parameter is required');
-    }
+    commonDataValidator.validateStringAsRequired(code, 'Course code');
   }
 
   function validateTitle(title) {
-    if (!title) {
-      throw new Error('title parameter is required');
-    }
+    commonDataValidator.validateStringAsRequired(title, 'Course title');
   }
 
   function validateCredits(credits) {
-    if (!credits || credits <= 0) {
-      throw new Error(`credits parameter must be greater than 0`);
-    }
+    commonDataValidator.validateNumberAsRequired(credits, 'Course credits');
+
+    if (credits <= 0) throw new BadRequestError(`Course credits must be greater than 0`);
   }
 
   function validateSuccessNote(successNote) {
-    if (!successNote || successNote <= 0) {
-      throw new Error(`successNote parameter must be greater than 0`);
-    }
+    commonDataValidator.validateNumberAsRequired(successNote, 'Course successNote');
+
+    if (successNote <= 0) throw new BadRequestError(`Course successNote must be greater than 0`);
   }
 
-  return class Course {
+  function validateDescription(description) {
+    commonDataValidator.validateString(description, 'Course description');
+  }
+
+  function validateGroup(group, required = false) {
+    entityValidator.validateGroup({ group, required, errorPrefix: 'Course group' });
+  }
+
+  return class Course extends TimeEntity {
     #id;
+    #createdAt;
+    #updatedAt;
     #code;
     #title;
     #description;
@@ -37,21 +42,18 @@ module.exports = function buildCourse({
     #successNote;
     #group;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      code,
-      title,
-      description,
-      credits,
-      successNote,
-      group,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ id, code, title, description, credits, successNote, group, createdAt, updatedAt } = {}) {
+      super();
+
+      commonDataValidator.validateIdAsRequired(id, 'Course id');
       validateCode(code);
       validateTitle(title);
       validateCredits(credits);
       validateSuccessNote(successNote);
-      entityValidator.validateGroup({ group });
+      validateDescription(description);
+      validateGroup(group);
+      commonDataValidator.validateDateAsRequired(createdAt, 'Course createdAt');
+      commonDataValidator.validateDateAsRequired(updatedAt, 'Course updatedAt');
 
       this.#id = id;
       this.#code = code;
@@ -60,6 +62,8 @@ module.exports = function buildCourse({
       this.#credits = credits;
       this.#successNote = successNote;
       this.#group = group;
+      this.#createdAt = createdAt;
+      this.#updatedAt = updatedAt;
 
       Object.seal(this);
     }
@@ -124,13 +128,41 @@ module.exports = function buildCourse({
     toJSON() {
       return {
         id: this.#id,
+        createdAt: this.#createdAt,
+        updatedAt: this.#updatedAt,
         code: this.#code,
         title: this.#title,
         description: this.#description,
         credits: this.#credits,
         successNote: this.#successNote,
-        group: this.#group.toJSON(),
+        group: this.#group ? this.#group.toJSON() : {},
       };
+    }
+
+    static newInstance({
+      id = commonDataGenerator.generateId(),
+      code,
+      title,
+      description,
+      credits,
+      successNote,
+      group,
+      createdAt = Date.now(),
+      updatedAt = Date.now(),
+    } = {}) {
+      validateGroup(group, true);
+
+      return new Course({
+        id,
+        code,
+        title,
+        description,
+        credits,
+        successNote,
+        group,
+        createdAt,
+        updatedAt,
+      });
     }
   };
 };

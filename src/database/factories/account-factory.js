@@ -1,3 +1,4 @@
+const { getDefaultProperties } = require('../../application/helpers/factory-utils');
 const accountEnums = require('../enums/account');
 
 module.exports = function buildAccountFactory({ fakeDataGenerator }) {
@@ -9,6 +10,8 @@ module.exports = function buildAccountFactory({ fakeDataGenerator }) {
   return {
     generate(initialValues = {}) {
       return {
+        ...getDefaultProperties(fakeDataGenerator),
+        active: true,
         email: fakeDataGenerator.generateEmail(),
         password: fakeDataGenerator.generatePassword(),
         role: pickARandomAccountRole(),

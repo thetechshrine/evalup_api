@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const commonEnums = require('../../../../database/enums/common');
 const studentEnums = require('../../../../database/enums/student');
 
 const studentSchema = new mongoose.Schema(
@@ -12,7 +13,7 @@ const studentSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: Object.values(studentEnums.genders),
+      enum: Object.values(commonEnums.genders),
     },
     lastName: {
       type: String,
@@ -43,11 +44,14 @@ const studentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    groupId: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports =
-  mongoose.models.Student || mongoose.model('Student', studentSchema);
+module.exports = mongoose.models.Student || mongoose.model('Student', studentSchema);

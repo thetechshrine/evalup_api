@@ -1,13 +1,22 @@
 const StudentRepository = require('../../../../database/repositories/student-repository');
 const { Student } = require('../../../../database/entities');
 const { StudentModel } = require('../models');
+const { ResourceNotFoundError, ParameterError } = require('../../../../application/helpers/errors');
+const MongooseAccountRepository = require('./mongoose-account-repository');
+const MongooseAddressRepository = require('./mongoose-address-repository');
+const MongooseGroupRepository = require('./mongoose-group-repository');
 
 module.exports = class MongooseStudentRepository extends StudentRepository {
+  static accountRepository = new MongooseAccountRepository();
+  static addressRepository = new MongooseAddressRepository();
+  static groupRepository = new MongooseGroupRepository();
+
   async create(studentObject) {
     const student = new StudentModel({
       ...studentObject.toJSON(),
       accountId: studentObject.account.id,
       addressId: studentObject.address.id,
+      groupId: studentObject.group.id,
     });
     await student.save();
 
@@ -20,7 +29,38 @@ module.exports = class MongooseStudentRepository extends StudentRepository {
     );
   }
 
-  async delete(studentId) {
-    await StudentModel.deleteOne({ id: studentId });
+  async checkById(id) {
+    if (!id) throw new ParameterError('studentId parameter is mandatory');
+
+    const matchingStudentsCount = await StudentModel.countDocuments({ id });
+    if (matchingStudentsCount !== 1) throw new ResourceNotFoundError(`Student with id ${id} not found`);
+  }
+
+  async parseToStudentEntity(student, { includeAccount = false, includeAddress = false, includeGroup = false } = {}) {
+    const entitesToInclude = {};
+
+    if (includeAccount) {
+      entitesToInclude.account = await MongooseStudentRepository.accountRepository.findById(student.accountId);
+    }
+    if (includeAddress) {
+      entitesToInclude.address = await MongooseStudentRepository.addressRepository.findById(student.addressId);
+    }
+    if (includeGroup) {
+      entitesToInclude.group = await MongooseStudentRepository.groupRepository.findById(student.groupId);
+    }
+
+    return new Student(Object.assign(student, { ...entitesToInclude }));
+  }
+
+  async findById(id, entitesToInclude = {}) {
+    await this.checkById(id);
+
+    const student = await StudentModel.findOne({ id });
+
+    return this.parseToStudentEntity(student, entitesToInclude);
+  }
+
+  async delete(id) {
+    await StudentModel.deleteOne({ id });
   }
 };

@@ -7,10 +7,7 @@ module.exports = class MongooseAssetRepository extends AssetRespository {
   assignForeignKeysToAsset(asset, assetObject) {
     if (assetObject.targetResource === assetEnums.targetResources.ASSESSMENT) {
       Object.assign(asset, { assessmentId: assetObject.assessment.id });
-    } else if (
-      assetObject.targetResource ===
-      assetEnums.targetResources.ASSESSMENT_RESULT
-    ) {
+    } else if (assetObject.targetResource === assetEnums.targetResources.ASSESSMENT_RESULT) {
       Object.assign(asset, {
         assessmentResultId: assetObject.assessmentResult.id,
       });
@@ -27,10 +24,32 @@ module.exports = class MongooseAssetRepository extends AssetRespository {
 
   async createAll(assetObjectsArray) {
     if (!Array.isArray(assetObjectsArray)) return [];
-    const createAssetPromises = assetObjectsArray.map((assetObject) =>
-      this.create(assetObject)
-    );
+    const createAssetPromises = assetObjectsArray.map((assetObject) => this.create(assetObject));
 
     return Promise.all(createAssetPromises);
+  }
+
+  async findAllByAssessmentId(assessmentId) {
+    const assets = await AssetModel.find({ assessmentId });
+
+    return assets.map((asset) => new Asset(asset));
+  }
+
+  async findAllByAssessmentResultId(assessmentResultId) {
+    const assets = await AssetModel.find({ assessmentResultId });
+
+    return assets.map((asset) => new Asset(asset));
+  }
+
+  async delete(assetId) {
+    await AssetModel.deleteOne({ id: assetId });
+  }
+
+  async deleteAll(assetIdsArray) {
+    if (!Array.isArray(assetIdsArray)) return [];
+
+    const deleteAssetPromises = assetIdsArray.map((assetId) => this.delete(assetId));
+
+    return Promise.all(deleteAssetPromises);
   }
 };

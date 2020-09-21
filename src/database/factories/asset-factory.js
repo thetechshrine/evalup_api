@@ -1,3 +1,4 @@
+const { getDefaultProperties } = require('../../application/helpers/factory-utils');
 const assetEnums = require('../enums/asset');
 
 module.exports = function buildAssetFactory({ fakeDataGenerator }) {
@@ -19,10 +20,12 @@ module.exports = function buildAssetFactory({ fakeDataGenerator }) {
   return {
     generate(initialValues = {}) {
       return {
+        ...getDefaultProperties(fakeDataGenerator),
         type: pickARamdomAssetType(),
         role: pickARamdomAssetRole(),
         targetResource: pickARamdomTargetResource(),
         url: fakeDataGenerator.generateUrl(),
+        remoteId: 'remoteId',
         ...initialValues,
       };
     },

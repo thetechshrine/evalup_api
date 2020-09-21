@@ -1,36 +1,8 @@
 const { Student, Account, Address } = require('../../database/entities');
 const accountEnums = require('../../database/enums/account');
-const {
-  BadRequestError,
-  ParameterError,
-} = require('../../application/helpers/errors');
 
-module.exports = function buildCreateStudent({
-  databaseServices,
-  securityServices,
-}) {
-  const {
-    studentRepository,
-    addressRepository,
-    accountRepository,
-    groupRepository,
-  } = databaseServices;
-
-  async function checkExistingAccountByEmail(email) {
-    const existingAccount = await accountRepository.findByEmail(email);
-    if (existingAccount)
-      throw new BadRequestError(`Account with email ${email} already exists`);
-  }
-
-  async function checkGroupId(groupId) {
-    if (!groupId) {
-      throw new ParameterError('You must be provided a valid groupId');
-    }
-    const group = await groupRepository.findById(groupId);
-    if (!group) throw new BadRequestError(`Group with id ${groupId} not found`);
-
-    return group;
-  }
+module.exports = function buildCreateStudent({ databaseServices, securityServices }) {
+  const { studentRepository, addressRepository, accountRepository, groupRepository } = databaseServices;
 
   async function persistAdress(address, accountId) {
     try {
@@ -42,14 +14,18 @@ module.exports = function buildCreateStudent({
     }
   }
 
+  async function deleteAllDataRelatedToTheProvidedStudent(student) {
+    await accountRepository.delete(student.account.id);
+    await addressRepository.delete(student.address.id);
+    await studentRepository.delete(student.id);
+  }
+
   async function persistStudent(student) {
     try {
       const persistedStudent = await studentRepository.create(student);
       return persistedStudent;
     } catch (error) {
-      await accountRepository.delete(student.account.id);
-      await addressRepository.delete(student.address.id);
-      await studentRepository.delete(student.id);
+      await deleteAllDataRelatedToTheProvidedStudent(student);
       throw error;
     }
   }
@@ -70,20 +46,20 @@ module.exports = function buildCreateStudent({
     country,
     groupId,
   } = {}) {
-    const group = await checkGroupId(groupId);
-    const account = new Account({
+    const group = await groupRepository.findById(groupId);
+    const account = Account.newInstance({
       email,
       password,
       role: accountEnums.roles.STUDENT,
     });
-    const address = new Address({
+    const address = Address.newInstance({
       streetNumber,
       streetName,
       city,
       zipCode,
       country,
     });
-    const student = new Student({
+    const student = Student.newInstance({
       gender,
       lastName,
       firstName,
@@ -95,7 +71,7 @@ module.exports = function buildCreateStudent({
       group,
     });
 
-    await checkExistingAccountByEmail(email);
+    await accountRepository.ensureThereIsNoAccountRelatedTheProvidedEmail(email);
     const encryptedPassword = await securityServices.hashPassword(password);
     account.password = encryptedPassword;
 

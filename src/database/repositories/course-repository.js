@@ -1,15 +1,11 @@
 const EntityRepository = require('./entity-repository');
 
 module.exports = class CourseRepository extends EntityRepository {
-  checkCourseId() {
+  findAllByGroupId() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
-  findAllByGroudId() {
-    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
-  }
-
-  findByCode() {
+  ensureThereIsNoGourseRelatedToTheProvidedCode() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 };

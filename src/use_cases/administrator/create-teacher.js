@@ -1,17 +1,12 @@
 const { Teacher, Account } = require('../../database/entities');
 const accountEnums = require('../../database/enums/account');
-const { BadRequestError } = require('../../application/helpers/errors');
 
-module.exports = function buildCreateTeacher({
-  databaseServices,
-  securityServices,
-}) {
+module.exports = function buildCreateTeacher({ databaseServices, securityServices }) {
   const { teacherRepository, accountRepository } = databaseServices;
 
-  async function checkExistingAccountByEmail(email) {
-    const existingAccount = await accountRepository.findByEmail(email);
-    if (existingAccount)
-      throw new BadRequestError(`Account with email ${email} already exists`);
+  async function deleteAllDataRelatedToTheProvidedTeacher(teacher) {
+    await accountRepository.delete(teacher.account.id);
+    await accountRepository.delete(teacher.id);
   }
 
   async function persistTeacher(teacher) {
@@ -19,8 +14,7 @@ module.exports = function buildCreateTeacher({
       const persistedTeacher = await teacherRepository.create(teacher);
       return persistedTeacher;
     } catch (error) {
-      await accountRepository.delete(teacher.account.id);
-      await accountRepository.delete(teacher.id);
+      await deleteAllDataRelatedToTheProvidedTeacher(teacher);
       throw error;
     }
   }
@@ -36,7 +30,7 @@ module.exports = function buildCreateTeacher({
       account,
     });
 
-    await checkExistingAccountByEmail(email);
+    await accountRepository.ensureThereIsNoAccountRelatedToTheProvidedEmail(email);
     const encryptedPassword = await securityServices.hashPassword(password);
     account.password = encryptedPassword;
 

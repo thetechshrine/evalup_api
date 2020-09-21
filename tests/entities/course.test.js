@@ -1,74 +1,38 @@
 const { expect } = require('chai');
 const { Course, Group } = require('../../src/database/entities');
 const { CourseFactory, GroupFactory } = require('../../src/database/factories');
+const { ParameterError } = require('../../src/application/helpers/errors');
 
-describe('create course entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.course = CourseFactory.generate({
-      group: new Group(GroupFactory.generate()),
+describe('Course - Entity', () => {
+  const shared = {
+    requiredProperties: ['code', 'title', 'group'],
+  };
+
+  describe('create new course', () => {
+    beforeEach(() => {
+      const group = new Group(GroupFactory.generate());
+
+      shared.courseData = CourseFactory.generate({ group });
     });
-  });
 
-  it('should return an error if there is no code parameter', () => {
-    delete shared.course.code;
+    it('should succeed if all parameters are correct', () => {
+      Course.newInstance(shared.courseData);
+    });
 
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.courseData[requiredProperty];
 
-  it('should return an error if there is no title parameter', () => {
-    delete shared.course.title;
+        expect(() => {
+          Course.newInstance(shared.courseData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
 
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should return an error if there is no credits parameter', () => {
-    delete shared.course.credits;
-
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should return an error if credits is less or equal 0', () => {
-    shared.course.credits = 0;
-
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should return an error if there is no success note parameter', () => {
-    delete shared.course.successNote;
-
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should return an error if success note is less or equal 0', () => {
-    shared.course.successNote = 0;
-
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should return an error if group is not an instance of Group class', () => {
-    shared.course.group = {};
-
-    expect(() => {
-      new Course(shared.course);
-    }).to.throw();
-  });
-
-  it('should successfully create a course with all properties valid ', () => {
-    const course = new Course(shared.course);
-
-    expect(course).to.have.property('id');
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
   });
 });

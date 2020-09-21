@@ -2,31 +2,39 @@ const TimeEntity = require('../../application/helpers/time-entity');
 const assetEnums = require('../enums/asset');
 const entityValidator = require('../../application/helpers/entity-validator');
 
-module.exports = function buildAsset({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildAsset({ commonDataGenerator, commonDataValidator }) {
   function validateType(type) {
     const assetTypes = Object.values(assetEnums.types);
-    if (!type || !assetTypes.includes(type)) {
-      throw new Error(`type parameter must be one of ${assetTypes}`);
-    }
+
+    commonDataValidator.validateEnumAsRequired(type, assetTypes, 'Asset type');
   }
 
   function validateRole(role) {
     const assetRoles = Object.values(assetEnums.roles);
-    if (!role || !assetRoles.includes(role)) {
-      throw new Error(`type parameter must be one of ${assetRoles}`);
-    }
+
+    commonDataValidator.validateEnumAsRequired(role, assetRoles, 'Asset role');
   }
 
   function validateTargetResource(targetResource) {
     const targetResources = Object.values(assetEnums.targetResources);
-    if (!targetResource || !targetResources.includes(targetResource)) {
-      throw new Error(
-        `target resource parameter must be one of ${targetResources}`
-      );
-    }
+
+    commonDataValidator.validateEnumAsRequired(targetResource, targetResources, 'Asset targetResource');
+  }
+
+  function validateRemoteId(remoteId) {
+    commonDataValidator.validateStringAsRequired(remoteId, 'Asset remoteId');
+  }
+
+  function validateUrl(url) {
+    commonDataValidator.validateUrlAsRequired(url, 'Asset url');
+  }
+
+  function validateAssessment(assessment, required = false) {
+    entityValidator.validateAssessment({ assessment, required, errorPrefix: 'Asset assessment' });
+  }
+
+  function validateAssessmentResult(assessmentResult, required = false) {
+    entityValidator.validateAssessmentResult({ assessmentResult, required, errorPrefix: 'Asset assessment result' });
   }
 
   return class Asset extends TimeEntity {
@@ -41,27 +49,20 @@ module.exports = function buildAsset({
     #assessment;
     #assessmentResult;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      type,
-      role,
-      targetResource,
-      url,
-      remoteId,
-      assessment,
-      assessmentResult,
-      createdAt,
-      updatedAt,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ id, type, role, targetResource, url, remoteId, assessment, assessmentResult, createdAt, updatedAt } = {}) {
+      super();
+
+      commonDataValidator.validateIdAsRequired(id, 'Asset id');
       validateType(type);
       validateRole(role);
       validateTargetResource(targetResource);
-      commonDataValidator.validateUrl(url);
-      entityValidator.validateAssessment({ assessment });
-      entityValidator.validateAssessmentResult({ assessmentResult });
+      validateRemoteId(remoteId);
+      validateUrl(url);
+      validateAssessment(assessment);
+      validateAssessmentResult(assessmentResult);
+      commonDataValidator.validateDateAsRequired(createdAt, 'Asset createdAt');
+      commonDataValidator.validateDateAsRequired(updatedAt, 'Asset updatedAt');
 
-      super();
       this.#id = id;
       this.#type = type;
       this.#role = role;
@@ -109,7 +110,7 @@ module.exports = function buildAsset({
     }
 
     set url(url) {
-      commonDataValidator.validateUrl(url);
+      validateUrl(url);
       this.#url = url;
       this.#updatedAt = Date.now();
     }
@@ -119,6 +120,7 @@ module.exports = function buildAsset({
     }
 
     set remoteId(remoteId) {
+      validateRemoteId(remoteId);
       this.#remoteId = remoteId;
       this.#updatedAt = Date.now();
     }
@@ -128,7 +130,7 @@ module.exports = function buildAsset({
     }
 
     set assessment(assessment) {
-      entityValidator.validateAssessment({ assessment, required: true });
+      validateAssessment(assessment, true);
       this.#assessment = assessment;
       this.#updatedAt = Date.now();
     }
@@ -138,10 +140,7 @@ module.exports = function buildAsset({
     }
 
     set assessmentResult(assessmentResult) {
-      entityValidator.validateAssessmentResult({
-        assessmentResult,
-        required: true,
-      });
+      validateAssessmentResult(assessmentResult, true);
       this.#assessmentResult = assessmentResult;
       this.#updatedAt = Date.now();
     }
@@ -161,6 +160,32 @@ module.exports = function buildAsset({
         url: this.#url,
         remoteId: this.#remoteId,
       };
+    }
+
+    static newInstance({
+      id = commonDataGenerator.generateId(),
+      type,
+      role,
+      targetResource,
+      url,
+      remoteId,
+      assessment,
+      assessmentResult,
+      createdAt = Date.now(),
+      updatedAt = Date.now(),
+    } = {}) {
+      return new Asset({
+        id,
+        type,
+        role,
+        targetResource,
+        url,
+        remoteId,
+        assessment,
+        assessmentResult,
+        createdAt,
+        updatedAt,
+      });
     }
   };
 };

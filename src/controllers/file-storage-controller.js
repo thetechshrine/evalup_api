@@ -1,14 +1,14 @@
 const HttpResponse = require('../application/payloads/http-response');
-const buildSaveFileUseCase = require('../use_cases/user/save-file');
-const buildDeleteFileUseCase = require('../use_cases/user/delete-file');
+const buildSaveFileResourceUseCase = require('../use_cases/user/save-file-resource');
+const buildDeleteFileUseResourceCase = require('../use_cases/user/delete-file-resource');
 
 module.exports = function buildFileStorageController(dependencies) {
-  const saveFileUseCase = buildSaveFileUseCase(dependencies);
-  const deleteFileUseCase = buildDeleteFileUseCase(dependencies);
+  const saveFileResourceUseCase = buildSaveFileResourceUseCase(dependencies);
+  const deleteFileResourceUseCase = buildDeleteFileUseResourceCase(dependencies);
 
-  async function saveFile(request) {
+  async function saveFileResource(request) {
     const { folder } = request.body;
-    const storageServicesResponse = await saveFileUseCase.execute({
+    const storageServicesResponse = await saveFileResourceUseCase.execute({
       file: request.file,
       folder,
     });
@@ -21,8 +21,8 @@ module.exports = function buildFileStorageController(dependencies) {
     return httpResponse;
   }
 
-  async function deleteFile(request) {
-    await deleteFileUseCase.execute(request.params);
+  async function deleteFileResource(request) {
+    await deleteFileResourceUseCase.execute(request.params);
 
     const httpReponse = HttpResponse.succeeded({
       message: 'File successfully deleted',
@@ -32,7 +32,7 @@ module.exports = function buildFileStorageController(dependencies) {
   }
 
   return {
-    saveFile,
-    deleteFile,
+    saveFileResource,
+    deleteFileResource,
   };
 };

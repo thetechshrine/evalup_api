@@ -1,9 +1,9 @@
 module.exports = class FileStorageServices {
-  saveFile() {
+  saveFileResource() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
 
-  deleteFile() {
+  deleteFileResource() {
     throw new Error('ERR_METHOD_NOT_IMPLEMENTED');
   }
 };

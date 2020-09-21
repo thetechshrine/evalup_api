@@ -1,56 +1,115 @@
 const { expect } = require('chai');
 const { Account } = require('../../src/database/entities');
 const { AccountFactory } = require('../../src/database/factories');
+const { ParameterError, BadRequestError } = require('../../src/application/helpers/errors');
+const { removeImmutablePropertiesFromEntityData } = require('../../src/application/helpers/factory-utils');
 
-describe('create account entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.account = AccountFactory.generate();
+describe('Account - Entity', () => {
+  const shared = {
+    requiredProperties: ['email', 'password', 'role'],
+  };
+
+  describe('create a new account', () => {
+    beforeEach(() => {
+      shared.accountData = AccountFactory.generate();
+    });
+
+    it('should succeed if all properties are correct', () => {
+      Account.newInstance(shared.accountData);
+    });
+
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.accountData[requiredProperty];
+
+        expect(() => {
+          Account.newInstance(shared.accountData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
+
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
+
+    it('should fail if email is not a valid email address', () => {
+      shared.accountData.email = 'email';
+
+      expect(() => {
+        Account.newInstance(shared.accountData);
+      }).to.throw(BadRequestError, /(?:email)/);
+    });
+
+    it('should fail if password length is less than 4', () => {
+      shared.accountData.password = 'yes';
+
+      expect(() => {
+        Account.newInstance(shared.accountData);
+      }).to.throw(BadRequestError, /(?:password)/);
+    });
+
+    it('should fail if role is not an authorized role', () => {
+      shared.accountData.role = 'role';
+
+      expect(() => {
+        Account.newInstance(shared.accountData);
+      }).to.throw(BadRequestError, /(?:role)/);
+    });
   });
 
-  it('should return an error if there is no email parameter', () => {
-    delete shared.account.email;
+  describe('update account', () => {
+    beforeEach(() => {
+      shared.account = Account.newInstance(AccountFactory.generate());
+    });
 
-    expect(() => {
-      new Account(shared.account);
-    }).to.throw();
-  });
+    function testUpdatableProperty(updatableProperty, updateValue) {
+      it(`should succeed updating ${updatableProperty}`, () => {
+        shared.account[updatableProperty] = updateValue;
+        expect(shared.account[updatableProperty]).to.be.equal(updateValue);
+      });
+    }
 
-  it('should return an error if email is not valid', () => {
-    shared.account.email = 'email';
+    context('updatable properties can be updated with valid values', () => {
+      const accountUpdateData = removeImmutablePropertiesFromEntityData(AccountFactory.generate());
+      const accountUpdatableProperties = Object.keys(accountUpdateData);
 
-    expect(() => {
-      new Account(shared.account);
-    }).to.throw();
-  });
+      accountUpdatableProperties.forEach((updatableProperty) => {
+        testUpdatableProperty(updatableProperty, accountUpdateData[updatableProperty]);
+      });
+    });
 
-  it('should return an error if the password length is less than 4', () => {
-    shared.account.password = 'not';
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail trying to delete the value of ${requiredProperty}`, () => {
+        expect(() => {
+          shared.account[requiredProperty] = '';
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
 
-    expect(() => {
-      new Account(shared.account);
-    }).to.throw();
-  });
+    context('required properties values can not be deleted', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
 
-  it('should return an error if there is not role parameter', () => {
-    shared.account.role = 'role';
+    it('should fail if email is not a valid email', () => {
+      expect(() => {
+        shared.account.email = 'email';
+      }).to.throw(BadRequestError, /(?:email)/);
+    });
 
-    expect(() => {
-      new Account(AccountFactory.generate({ role: 'role' }));
-    }).to.throw();
-  });
+    it('should fail if password length is less than 4', () => {
+      expect(() => {
+        shared.account.password = 'no';
+      }).to.throw(BadRequestError, /(?:password)/);
+    });
 
-  it('should return an error if the role is not one of authorized role', () => {
-    shared.account.role = 'role';
-
-    expect(() => {
-      new Account(AccountFactory.generate({ role: 'role' }));
-    }).to.throw();
-  });
-
-  it('should successfully create a new account with an id', () => {
-    const account = new Account(shared.account);
-
-    expect(account).to.have.property('id');
+    it('should fail if role is not an authorized role', () => {
+      expect(() => {
+        shared.account.role = 'role';
+      }).to.throw(BadRequestError, /(?:role)/);
+    });
   });
 });

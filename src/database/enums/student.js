@@ -1,8 +1,4 @@
 module.exports = {
-  genders: Object.freeze({
-    MALE: 'MALE',
-    FEMALE: 'FEMALE',
-  }),
   countries: Object.freeze({
     AF: 'Afghanistan',
     AX: 'Åland Islands',

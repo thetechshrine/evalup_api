@@ -2,9 +2,9 @@ module.exports = function buildGetCourses({ databaseServices }) {
   const { groupRepository } = databaseServices;
 
   async function execute() {
-    const groups = await groupRepository.findAll();
+    const foundGroups = await groupRepository.findAll();
 
-    return groups.map((group) => group.toJSON());
+    return foundGroups.map((foundGroup) => foundGroup.toJSON());
   }
 
   return {

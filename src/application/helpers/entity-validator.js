@@ -1,60 +1,50 @@
 const commonEnums = require('../../database/enums/common');
 const { ParameterError } = require('./errors');
 
-function validateEntity(entity, className, required) {
+function validateEntity(entity, className, required, errorPrefix) {
   if (!entity && required) {
-    throw new ParameterError(`${className} is required`);
+    throw new ParameterError(`${errorPrefix} is required`);
   }
 
   if (entity && entity.constructor.name !== className) {
-    throw new ParameterError(
-      `entity parameter must be an instance of ${className} class`
-    );
+    throw new ParameterError(`${errorPrefix} must be an instance of ${className} class`);
   }
 }
 
-function validateAccount({ account, required = false } = {}) {
-  validateEntity(account, commonEnums.entitiesClassNames.ACCOUNT, required);
+function validateAccount({ account, required = false, errorPrefix = '' } = {}) {
+  validateEntity(account, commonEnums.entitiesClassNames.ACCOUNT, required, errorPrefix);
 }
 
-function validateAddress({ address, required = false } = {}) {
-  validateEntity(address, commonEnums.entitiesClassNames.ADDRESS, required);
+function validateAddress({ address, required = false, errorPrefix = '' } = {}) {
+  validateEntity(address, commonEnums.entitiesClassNames.ADDRESS, required, errorPrefix);
 }
 
-function validateGroup({ group, required = false } = {}) {
-  validateEntity(group, commonEnums.entitiesClassNames.GROUP, required);
+function validateGroup({ group, required = false, errorPrefix = '' } = {}) {
+  validateEntity(group, commonEnums.entitiesClassNames.GROUP, required, errorPrefix);
 }
 
-function validateTeacher({ teacher, required = false } = {}) {
-  validateEntity(teacher, commonEnums.entitiesClassNames.TEACHER, required);
+function validateTeacher({ teacher, required = false, errorPrefix = '' } = {}) {
+  validateEntity(teacher, commonEnums.entitiesClassNames.TEACHER, required, errorPrefix);
 }
 
-function validateCourse({ course, required = false } = {}) {
-  validateEntity(course, commonEnums.entitiesClassNames.COURSE, required);
+function validateCourse({ course, required = false, errorPrefix = '' } = {}) {
+  validateEntity(course, commonEnums.entitiesClassNames.COURSE, required, errorPrefix);
 }
 
-function validateAsset({ asset, required = false } = {}) {
-  validateEntity(asset, commonEnums.entitiesClassNames.ASSET, required);
+function validateAsset({ asset, required = false, errorPrefix = '' } = {}) {
+  validateEntity(asset, commonEnums.entitiesClassNames.ASSET, required, errorPrefix);
 }
 
-function validateStudent({ student, required = false } = {}) {
-  validateEntity(student, commonEnums.entitiesClassNames.STUDENT, required);
+function validateStudent({ student, required = false, errorPrefix = '' } = {}) {
+  validateEntity(student, commonEnums.entitiesClassNames.STUDENT, required, errorPrefix);
 }
 
-function validateAssessment({ assessment, required = false } = {}) {
-  validateEntity(
-    assessment,
-    commonEnums.entitiesClassNames.ASSESSMENT,
-    required
-  );
+function validateAssessment({ assessment, required = false, errorPrefix = '' } = {}) {
+  validateEntity(assessment, commonEnums.entitiesClassNames.ASSESSMENT, required, errorPrefix);
 }
 
-function validateAssessmentResult({ assessmentResult, required = false } = {}) {
-  validateEntity(
-    assessmentResult,
-    commonEnums.entitiesClassNames.ASSESSMENT_RESULT,
-    required
-  );
+function validateAssessmentResult({ assessmentResult, required = false, errorPrefix = '' } = {}) {
+  validateEntity(assessmentResult, commonEnums.entitiesClassNames.ASSESSMENT_RESULT, required, errorPrefix);
 }
 
 module.exports = {

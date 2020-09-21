@@ -2,56 +2,89 @@ const AssessmentRespository = require('../../../../database/repositories/assessm
 const { Assessment } = require('../../../../database/entities');
 const { AssessmentModel } = require('../models');
 const MongooseAssetRepository = require('./mongoose-asset-repository');
+const MongooseTeacherRepository = require('./mongoose-teacher-repository');
+const MongooseCourseRepository = require('./mongoose-course-repository');
+const MongooseGroupRepository = require('./mongoose-group-repository');
+const { ParameterError, ResourceNotFoundError } = require('../../../../application/helpers/errors');
+const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseAssessmentRepository extends AssessmentRespository {
-  constructor() {
-    this.mongooseAssetRepository = new MongooseAssetRepository();
-  }
-
-  assignAssessmentToAssetsArray(assets, assessmentObject) {
-    if (!Array.isArray(assets)) throw new Error('assets must be an array');
-
-    return assets.map((asset) => {
-      const assetToAssign = asset;
-      assetToAssign.assessment = assessmentObject;
-
-      return assetToAssign;
-    });
-  }
+  static assetRepository = new MongooseAssetRepository();
+  static teacherRepository = new MongooseTeacherRepository();
+  static courseRepository = new MongooseCourseRepository();
+  static groupRepository = new MongooseGroupRepository();
 
   async create(assessmentObject) {
-    const persistedAssets = await this.mongooseAssetRepository.createAll(
-      this.assignAssessmentToAssetsArray(
-        assessmentObject.assets,
-        assessmentObject
-      )
-    );
     const assessment = new AssessmentModel({
-      id: assessmentObject.id,
-      title: assessmentObject.id,
-      type: assessmentObject.type,
-      description: assessmentObject.description,
-      startDate: assessmentObject.startDate,
-      endDate: assessmentObject.endDate,
+      ...assessmentObject.toJSON(),
       teacherId: assessmentObject.teacher.id,
       courseId: assessmentObject.course.id,
       groupId: assessmentObject.group.id,
     });
     await assessment.save();
 
-    return new Assessment({ ...assessment, assets: persistedAssets });
+    return new Assessment(
+      Object.assign(assessment, {
+        assets: assessmentObject.assets,
+        teacher: assessmentObject.teacher,
+        course: assessmentObject.course,
+        group: assessmentObject.group,
+      })
+    );
   }
 
-  async findById(assessmentId) {
-    const assessment = AssessmentModel.findOne({ id: assessmentId });
-    const asse
+  async checkById(id) {
+    if (!id) throw new ParameterError('assessmentId parameter is mandatory');
+
+    const matchingAssessmentsCount = await AssessmentModel.countDocuments({ id });
+    if (matchingAssessmentsCount !== 1) throw new ResourceNotFoundError(`Assessment with id ${id} not found`);
+  }
+
+  async parseToAssessmentEntity(assessment, { includeTeacher = false, includeCourse = false, includeGroup = false } = {}) {
+    const assets = await MongooseAssessmentRepository.assetRepository.findAllByAssessmentId(assessment.id);
+    const entitiesToInclude = {};
+
+    if (includeTeacher) {
+      entitiesToInclude.teacher = MongooseAssessmentRepository.teacherRepository.findById(assessment.teacherId, {
+        includeAccount: true,
+      });
+    }
+    if (includeCourse) {
+      entitiesToInclude.course = MongooseAssessmentRepository.courseRepository.findById(assessment.courseId);
+    }
+    if (includeGroup) {
+      entitiesToInclude.group = MongooseAssessmentRepository.groupRepository.findById(assessment.groupId);
+    }
+
+    return new Assessment(Object.assign(assessment, { assets, ...entitiesToInclude }));
+  }
+
+  async findById(id, entitiesToInclude = {}) {
+    await this.checkById(id);
+
+    const foundAssessment = await AssessmentModel.findOne({ id });
+
+    return this.parseToAssessmentEntity(foundAssessment, entitiesToInclude);
+  }
+
+  async findByForeignKey(foreignKey, entitiesToInclude) {
+    const foundAssessments = await AssessmentModel.find({ [foreignKey]: foreignKey }).sort(defaultSortingParams);
+    const parseToAssessmentEntityPromises = foundAssessments.map((foundAssessment) =>
+      this.parseToAssessmentEntity(foundAssessment, entitiesToInclude)
+    );
+
+    return Promise.all(parseToAssessmentEntityPromises);
   }
 
   async findAllByGroupId(groupId) {
-    return AssessmentModel.find({  })
+    return this.findByForeignKey(groupId, { includeTeacher: true, includeCourse: true });
   }
 
-  async findAllByTeacherId(teachedId) {}
+  async findAllByTeacherId(teachedId) {
+    return this.findByForeignKey(teachedId, { includeGroup: true, includeCourse: true });
+  }
 
-  async checkAssessmentId(assessmentId) {}
+  async delete(id) {
+    await AssessmentModel.deleteOne({ id });
+  }
 };

@@ -1,50 +1,26 @@
-const {
-  BadRequestError,
-  ParameterError,
-} = require('../../application/helpers/errors');
+const { BadRequestError } = require('../../application/helpers/errors');
 
-module.exports = function buildAddress({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildAddress({ commonDataGenerator, commonDataValidator }) {
   function validateStreetNumber(streetNumber) {
-    if (!streetNumber) {
-      throw new ParameterError(`Address street number is required`);
-    }
-    if (!Number.isInteger(Number(streetNumber))) {
-      throw new BadRequestError(
-        `Address street number must be a numeric value`
-      );
-    }
-    if (streetNumber <= 0) {
-      throw new BadRequestError(
-        `Address street number ${streetNumber} is invalid`
-      );
-    }
+    commonDataValidator.validateNumberAsRequired(streetNumber, 'Address streetNumber');
+
+    if (streetNumber <= 0) throw new BadRequestError(`Address streetNumber ${streetNumber} is invalid`);
   }
 
   function validateStreetName(streetName) {
-    if (!streetName) {
-      throw new ParameterError('Address street name is required');
-    }
+    commonDataValidator.validateStringAsRequired(streetName, 'Address streetName');
   }
 
   function validateCity(city) {
-    if (!city) {
-      throw new ParameterError('Address city is required');
-    }
+    commonDataValidator.validateStringAsRequired(city, 'Address city');
   }
 
   function validateZipCode(zipCode) {
-    if (!zipCode) {
-      throw new ParameterError('Address zip code is required');
-    }
+    commonDataValidator.validateStringAsRequired(zipCode, 'Address zipCode');
   }
 
   function validateCountry(country) {
-    if (!country) {
-      throw new ParameterError('Address country is required');
-    }
+    commonDataValidator.validateStringAsRequired(country, 'Address country');
   }
 
   return class Address {
@@ -55,15 +31,8 @@ module.exports = function buildAddress({
     #zipCode;
     #country;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      streetNumber,
-      streetName,
-      city,
-      zipCode,
-      country,
-    } = {}) {
-      commonDataValidator.validateId(id);
+    constructor({ id, streetNumber, streetName, city, zipCode, country } = {}) {
+      commonDataValidator.validateIdAsRequired(id);
       validateStreetNumber(streetNumber);
       validateStreetName(streetName);
       validateCity(city);
@@ -138,6 +107,10 @@ module.exports = function buildAddress({
         zipCode: this.#zipCode,
         country: this.#country,
       };
+    }
+
+    static newInstance({ id = commonDataGenerator.generateId(), streetNumber, streetName, city, zipCode, country } = {}) {
+      return new Address({ id, streetNumber, streetName, city, zipCode, country });
     }
   };
 };

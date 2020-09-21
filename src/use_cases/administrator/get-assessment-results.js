@@ -2,15 +2,11 @@ module.exports = function buildGetAssessmentResults({ databaseServices }) {
   const { assessmentResultRepository, assessmentRepository } = databaseServices;
 
   async function execute({ assessmentId } = {}) {
-    await assessmentRepository.checkAssessmentId(assessmentId);
+    await assessmentRepository.checkById(assessmentId);
 
-    const assessmentResults = await assessmentResultRepository.findAllByAssessmentId(
-      assessmentId
-    );
+    const foundAssessmentResults = await assessmentResultRepository.findAllByAssessmentId(assessmentId);
 
-    return assessmentResults.map((assessmentResult) =>
-      assessmentResult.toJSON()
-    );
+    return foundAssessmentResults.map((foundAssessmentResult) => foundAssessmentResult.toJSON());
   }
 
   return {

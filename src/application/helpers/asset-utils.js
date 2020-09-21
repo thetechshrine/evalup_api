@@ -1,16 +1,15 @@
 const entityValidator = require('./entity-validator');
 const assetEnums = require('../../database/enums/asset');
+const { BadRequestError } = require('./errors');
 
 function ensureAssetsArrayHasExactlyOnePrimaryRoleAssetAndItsRoleIsPDF(assets) {
-  const primaryRoleAssets = assets.filter(
-    (asset) => asset.role === assetEnums.roles.PRIMARY
-  );
+  const primaryRoleAssets = assets.filter((asset) => asset.role === assetEnums.roles.PRIMARY);
   if (!Array.isArray(primaryRoleAssets) || primaryRoleAssets.length !== 1) {
-    throw new Error('assets array must have exactly one primary role asset');
+    throw new BadRequestError('Assets array must have exactly one primary role asset');
   }
 
   if (primaryRoleAssets[0].type !== assetEnums.types.PDF) {
-    throw new Error('assets array primary role asset must be a PDF file');
+    throw new BadRequestError('Assets array primary role asset must be a PDF file');
   }
 }
 

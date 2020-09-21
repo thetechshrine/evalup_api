@@ -10,4 +10,8 @@ module.exports = {
     ASSET: 'Asset',
     ASSESSMENT_RESULT: 'AssessmentResult',
   }),
+  genders: Object.freeze({
+    MALE: 'MALE',
+    FEMALE: 'FEMALE',
+  }),
 };

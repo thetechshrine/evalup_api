@@ -1,4 +1,4 @@
-const JoiCommonDataValidator = require('../../infrastructure/data_validation/joi/joi-common-data-validator');
+const JoiValidator = require('../../infrastructure/data_validation/joi/joi-validator');
 const CoreDataGenerator = require('../../infrastructure/data_generation/core-data-generator');
 const buildAccount = require('./account');
 const buildAddress = require('./address');
@@ -9,9 +9,10 @@ const buildTeacher = require('./teacher');
 const buildAsset = require('./asset');
 const buildAssessment = require('./assessment');
 const buildAssessmentResult = require('./assessment-result');
+const buildFileResource = require('./file-resource');
 
 const entitiesDependencies = {
-  commonDataValidator: new JoiCommonDataValidator(),
+  commonDataValidator: new JoiValidator(),
   commonDataGenerator: new CoreDataGenerator(),
 };
 
@@ -25,4 +26,5 @@ module.exports = {
   Asset: buildAsset(entitiesDependencies),
   Assessment: buildAssessment(entitiesDependencies),
   AssessmentResult: buildAssessmentResult(entitiesDependencies),
+  FileResource: buildFileResource(entitiesDependencies),
 };

@@ -1,3 +1,5 @@
+const { getDefaultProperties } = require('../../application/helpers/factory-utils');
+const commonEnums = require('../enums/common');
 const studentEnums = require('../enums/student');
 
 module.exports = function buildStudentFactory({ fakeDataGenerator }) {
@@ -7,13 +9,14 @@ module.exports = function buildStudentFactory({ fakeDataGenerator }) {
   }
 
   function pickARandomGender() {
-    const genders = Object.keys(studentEnums.genders);
+    const genders = Object.keys(commonEnums.genders);
     return genders[Math.floor(Math.random() * genders.length)];
   }
 
   return {
     generate(initialValues = {}) {
       return {
+        ...getDefaultProperties(fakeDataGenerator),
         gender: pickARandomGender(),
         lastName: fakeDataGenerator.generatePersonName(),
         firstName: fakeDataGenerator.generatePersonName(),

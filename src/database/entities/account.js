@@ -1,33 +1,25 @@
 const TimeEntity = require('../../application/helpers/time-entity');
 const accountEnums = require('../enums/account');
-const {
-  BadRequestError,
-  ParameterError,
-} = require('../../application/helpers/errors');
+const { BadRequestError } = require('../../application/helpers/errors');
 
-module.exports = function buildAccount({
-  commonDataGenerator,
-  commonDataValidator,
-}) {
+module.exports = function buildAccount({ commonDataGenerator, commonDataValidator }) {
   function validatePassword(password) {
-    if (!password) {
-      throw new ParameterError('Account password is required');
-    }
-    if (password.length < 4) {
-      throw new BadRequestError(
-        'Account password must include at least 4 characters'
-      );
-    }
+    commonDataValidator.validateStringAsRequired(password, 'Account password');
+
+    if (password.length < 4) throw new BadRequestError('Account password must include at least 4 characters');
   }
 
   function validateRole(role) {
-    const accountRoles = Object.values(accountEnums.roles);
-    if (!role) {
-      throw new ParameterError('Account role is required');
-    }
-    if (!accountRoles.includes(role)) {
-      throw new Error(`Account role must be one of [${accountRoles}]`);
-    }
+    const roles = Object.values(accountEnums.roles);
+    commonDataValidator.validateEnumAsRequired(role, roles, 'Account role');
+  }
+
+  function validateEmail(email) {
+    commonDataValidator.validateEmailAsRequired(email, 'Account email');
+  }
+
+  function validateActive(active) {
+    commonDataValidator.validateBooleanAsRequired(active, 'Account active parameter');
   }
 
   return class Account extends TimeEntity {
@@ -39,21 +31,16 @@ module.exports = function buildAccount({
     #role;
     #active;
 
-    constructor({
-      id = commonDataGenerator.generateId(),
-      email,
-      password,
-      role,
-      active = true,
-      createdAt,
-      updatedAt,
-    } = {}) {
-      commonDataValidator.validateId(id);
-      commonDataValidator.validateEmail(email);
-      validatePassword(password);
-      validateRole(role);
-
+    constructor({ id, email, password, role, active, createdAt, updatedAt } = {}) {
       super();
+
+      commonDataValidator.validateIdAsRequired(id, 'Account id');
+      validateEmail(email);
+      validateRole(role);
+      validateActive(active);
+      commonDataValidator.validateDateAsRequired(createdAt, 'Account createdAt');
+      commonDataValidator.validateDateAsRequired(updatedAt, 'Account updatedAt');
+
       this.#id = id;
       this.#email = email;
       this.#password = password;
@@ -70,7 +57,7 @@ module.exports = function buildAccount({
     }
 
     set email(email) {
-      commonDataValidator.validateEmail(email);
+      validateEmail(email);
       this.#email = email;
       this.#updatedAt = Date.now();
     }
@@ -100,6 +87,7 @@ module.exports = function buildAccount({
     }
 
     set active(active) {
+      validateActive(active);
       this.#active = active;
       this.#updatedAt = Date.now();
     }
@@ -118,6 +106,20 @@ module.exports = function buildAccount({
         role: this.#role,
         active: this.#active,
       };
+    }
+
+    static newInstance({
+      id = commonDataGenerator.generateId(),
+      email,
+      password,
+      role,
+      active = true,
+      createdAt = Date.now(),
+      updatedAt = Date.now(),
+    } = {}) {
+      validatePassword(password);
+
+      return new Account({ id, email, password, role, active, createdAt, updatedAt });
     }
   };
 };

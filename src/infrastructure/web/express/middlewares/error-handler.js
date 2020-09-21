@@ -1,4 +1,6 @@
 const HttpResponse = require('../../../../application/payloads/http-response');
+const errorParser = require('../../../error_parser');
+const logger = require('../../../logger');
 
 module.exports = (err, _req, res, _next) => {
   const httpResponse = new HttpResponse({
@@ -7,7 +9,7 @@ module.exports = (err, _req, res, _next) => {
     message: err.message,
   });
 
-  console.log(err);
+  logger.error(errorParser.parseError(err).toString());
 
   res.status(httpResponse.status).json(httpResponse.toJSON());
 };

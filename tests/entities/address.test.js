@@ -1,64 +1,44 @@
 const { expect } = require('chai');
 const { Address } = require('../../src/database/entities');
 const { AddressFactory } = require('../../src/database/factories');
+const { ParameterError, BadRequestError } = require('../../src/application/helpers/errors');
 
-describe('create address entity', () => {
-  const shared = {};
-  beforeEach(() => {
-    shared.address = AddressFactory.generate();
-  });
+describe('Address - Entity', () => {
+  const shared = {
+    requiredProperties: ['streetNumber', 'streetName', 'city', 'zipCode', 'country'],
+  };
 
-  it('should return an error if there is no street number parameter', () => {
-    delete shared.address.streetNumber;
+  describe('create a new address', () => {
+    beforeEach(() => {
+      shared.addressData = AddressFactory.generate();
+    });
 
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
+    it('should succeed if all properties are correct', () => {
+      Address.newInstance(shared.addressData);
+    });
 
-  it('should return an error if street number parameter is less or equal to 0', () => {
-    shared.address.streetNumber = 0;
+    function testRequiredProperty(requiredProperty) {
+      it(`should fail if ${requiredProperty} is missing`, () => {
+        delete shared.addressData[requiredProperty];
 
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
+        expect(() => {
+          Address.newInstance(shared.addressData);
+        }).to.throw(ParameterError, new RegExp(`(?:${requiredProperty})`));
+      });
+    }
 
-  it('should return an error if there is no street name parameter', () => {
-    delete shared.address.streetName;
+    context('all required properties must be provided', () => {
+      shared.requiredProperties.forEach((requiredProperty) => {
+        testRequiredProperty(requiredProperty);
+      });
+    });
 
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
+    it('should fail if streetNumber is a negative value', () => {
+      shared.addressData.streetNumber = -1000;
 
-  it('should return an error if there is no city parameter', () => {
-    delete shared.address.city;
-
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
-
-  it('should return an error if there is no zip code parameter', () => {
-    delete shared.address.zipCode;
-
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
-
-  it('should return an error if there is no country parameter', () => {
-    delete shared.address.country;
-
-    expect(() => {
-      new Address(shared.address);
-    }).to.throw();
-  });
-
-  it('should successfully create a new address with an id', () => {
-    const address = new Address(shared.address);
-
-    expect(address).to.have.property('id');
+      expect(() => {
+        Address.newInstance(shared.addressData);
+      }).to.throw(BadRequestError, /(?:streetNumber)/);
+    });
   });
 });
