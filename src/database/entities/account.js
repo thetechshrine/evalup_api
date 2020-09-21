@@ -117,8 +117,6 @@ module.exports = function buildAccount({ commonDataGenerator, commonDataValidato
       createdAt = Date.now(),
       updatedAt = Date.now(),
     } = {}) {
-      validatePassword(password);
-
       return new Account({ id, email, password, role, active, createdAt, updatedAt });
     }
   };

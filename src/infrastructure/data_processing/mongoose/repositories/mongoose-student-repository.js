@@ -60,6 +60,12 @@ module.exports = class MongooseStudentRepository extends StudentRepository {
     return this.parseToStudentEntity(student, entitesToInclude);
   }
 
+  async findByAccountId(accountId) {
+    const student = await StudentModel.findOne({ accountId });
+
+    return this.parseToStudentEntity(student, { includeAccount: true, includeAddress: true, includeGroup: true });
+  }
+
   async delete(id) {
     await StudentModel.deleteOne({ id });
   }

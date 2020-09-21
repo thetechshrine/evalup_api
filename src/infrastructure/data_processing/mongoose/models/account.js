@@ -15,7 +15,9 @@ const accountSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+    },
+    active: {
+      type: Boolean,
     },
     role: {
       type: String,
@@ -28,5 +30,4 @@ const accountSchema = new mongoose.Schema(
   }
 );
 
-module.exports =
-  mongoose.models.Account || mongoose.model('Account', accountSchema);
+module.exports = mongoose.models.Account || mongoose.model('Account', accountSchema);

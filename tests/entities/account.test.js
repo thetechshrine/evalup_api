@@ -6,7 +6,7 @@ const { removeImmutablePropertiesFromEntityData } = require('../../src/applicati
 
 describe('Account - Entity', () => {
   const shared = {
-    requiredProperties: ['email', 'password', 'role'],
+    requiredProperties: ['email', 'role'],
   };
 
   describe('create a new account', () => {
@@ -42,14 +42,6 @@ describe('Account - Entity', () => {
       }).to.throw(BadRequestError, /(?:email)/);
     });
 
-    it('should fail if password length is less than 4', () => {
-      shared.accountData.password = 'yes';
-
-      expect(() => {
-        Account.newInstance(shared.accountData);
-      }).to.throw(BadRequestError, /(?:password)/);
-    });
-
     it('should fail if role is not an authorized role', () => {
       shared.accountData.role = 'role';
 
@@ -60,6 +52,8 @@ describe('Account - Entity', () => {
   });
 
   describe('update account', () => {
+    shared.requiredProperties = ['email', 'password', 'role'];
+
     beforeEach(() => {
       shared.account = Account.newInstance(AccountFactory.generate());
     });

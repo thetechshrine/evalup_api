@@ -45,12 +45,20 @@ module.exports = class MongooseAccountRepository extends AccountRespository {
 
     const account = await AccountModel.findOne({ email });
 
-    return this.parseToAccountEntity(account);
+    return new Account(account);
   }
 
   async ensureThereIsNoAccountRelatedToTheProvidedEmail(email) {
     const foundAccount = await AccountModel.findOne({ email });
     if (foundAccount) throw new BadRequestError(`Email ${email} is already associated with an account`);
+  }
+
+  async update(accountObject) {
+    const account = await AccountModel.findOne({ id: accountObject.id });
+    Object.assign(account, accountObject.toJSON());
+    await account.save();
+
+    return this.parseToAccountEntity(account);
   }
 
   async delete(accountId) {

@@ -1,7 +1,7 @@
 const { Student, Account, Address } = require('../../database/entities');
 const accountEnums = require('../../database/enums/account');
 
-module.exports = function buildCreateStudent({ databaseServices, securityServices }) {
+module.exports = function buildCreateStudent({ databaseServices, emailServices, tokenUtils }) {
   const { studentRepository, addressRepository, accountRepository, groupRepository } = databaseServices;
 
   async function persistAdress(address, accountId) {
@@ -23,6 +23,11 @@ module.exports = function buildCreateStudent({ databaseServices, securityService
   async function persistStudent(student) {
     try {
       const persistedStudent = await studentRepository.create(student);
+      await emailServices.sendAccountActivationEmail({
+        recipientFullName: `${student.firstName} ${student.lastName}`,
+        recipientEmail: student.account.email,
+        token: tokenUtils.generateToken({ email: student.account.email }),
+      });
       return persistedStudent;
     } catch (error) {
       await deleteAllDataRelatedToTheProvidedStudent(student);
@@ -38,7 +43,6 @@ module.exports = function buildCreateStudent({ databaseServices, securityService
     phone,
     birthDate,
     email,
-    password,
     streetNumber,
     streetName,
     city,
@@ -49,7 +53,6 @@ module.exports = function buildCreateStudent({ databaseServices, securityService
     const group = await groupRepository.findById(groupId);
     const account = Account.newInstance({
       email,
-      password,
       role: accountEnums.roles.STUDENT,
     });
     const address = Address.newInstance({
@@ -71,12 +74,10 @@ module.exports = function buildCreateStudent({ databaseServices, securityService
       group,
     });
 
-    await accountRepository.ensureThereIsNoAccountRelatedTheProvidedEmail(email);
-    const encryptedPassword = await securityServices.hashPassword(password);
-    account.password = encryptedPassword;
-
+    await accountRepository.ensureThereIsNoAccountRelatedToTheProvidedEmail(email);
     student.account = await accountRepository.create(account);
     student.address = await persistAdress(address, account.id);
+
     const persistedStudent = await persistStudent(student);
 
     return persistedStudent.toJSON();

@@ -1,7 +1,7 @@
 const { Teacher, Account } = require('../../database/entities');
 const accountEnums = require('../../database/enums/account');
 
-module.exports = function buildCreateTeacher({ databaseServices, securityServices }) {
+module.exports = function buildCreateTeacher({ databaseServices, emailServices, tokenUtils }) {
   const { teacherRepository, accountRepository } = databaseServices;
 
   async function deleteAllDataRelatedToTheProvidedTeacher(teacher) {
@@ -12,6 +12,11 @@ module.exports = function buildCreateTeacher({ databaseServices, securityService
   async function persistTeacher(teacher) {
     try {
       const persistedTeacher = await teacherRepository.create(teacher);
+      await emailServices.sendAccountActivationEmail({
+        recipientFullName: `${teacher.firstName} ${teacher.lastName}`,
+        recipientEmail: teacher.account.email,
+        token: tokenUtils.generateToken({ email: teacher.account.email }),
+      });
       return persistedTeacher;
     } catch (error) {
       await deleteAllDataRelatedToTheProvidedTeacher(teacher);
@@ -19,22 +24,22 @@ module.exports = function buildCreateTeacher({ databaseServices, securityService
     }
   }
 
-  async function execute({ email, password, type } = {}) {
-    const account = new Account({
+  async function execute({ email, type, gender, lastName, firstName } = {}) {
+    const account = Account.newInstance({
       email,
-      password,
       role: accountEnums.roles.TEACHER,
     });
-    const teacher = new Teacher({
+    const teacher = Teacher.newInstance({
       type,
+      gender,
+      lastName,
+      firstName,
       account,
     });
 
     await accountRepository.ensureThereIsNoAccountRelatedToTheProvidedEmail(email);
-    const encryptedPassword = await securityServices.hashPassword(password);
-    account.password = encryptedPassword;
-
     teacher.account = await accountRepository.create(account);
+
     const persistedTeacher = await persistTeacher(teacher);
 
     return persistedTeacher.toJSON();

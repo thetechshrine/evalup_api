@@ -38,7 +38,7 @@ module.exports = class MongooseGroupRepository extends GroupRespository {
     return Promise.all(parseToGroupEntityPromises);
   }
 
-  async ensureThereIsNoGroupWithTheProvidedCode(code) {
+  async ensureThereIsNoGroupRelatedToTheProvidedCode(code) {
     const foundGroup = await GroupModel.findOne({ code });
     if (foundGroup) throw new BadRequestError(`Code ${code} is already associated to a group`);
   }
