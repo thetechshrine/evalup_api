@@ -21,7 +21,7 @@ module.exports = class MongooseTeacherRepository extends TeacherRepository {
     if (!id) throw new ParameterError('teacherId parameter is mandatory');
 
     const matchingTeachersCount = await TeacherModel.countDocuments({ id });
-    if (matchingTeachersCount !== 1) throw new ResourceNotFoundError(`Teacher with id ${id} not found`);
+    if (matchingTeachersCount !== 1) throw new ResourceNotFoundError(`Teacher with id ${id} was not found`);
   }
 
   async parseToTeacherEntity(teacher, { includeAccount = false } = {}) {

@@ -179,8 +179,8 @@ module.exports = function buildStudent({ commonDataGenerator, commonDataValidato
         phone: this.#phone,
         birthDate: this.#birthDate,
         nationality: this.#nationality,
-        account: this.#account.toJSON(),
-        address: this.#address.toJSON(),
+        account: this.#account ? this.#account.toJSON() : {},
+        address: this.#address ? this.#address.toJSON() : {},
         group: this.#group ? this.#group.toJSON() : {},
       };
     }

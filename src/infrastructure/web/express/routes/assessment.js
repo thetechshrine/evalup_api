@@ -10,7 +10,7 @@ module.exports = function buildRouter(dependecies) {
 
   router.post('/', (req, res, next) => {
     assessmentController
-      .createAssessment(new HttpRequest(req))
+      .createAssessment(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })
@@ -19,10 +19,40 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.use(
-    '/:assessmentId/assessment-results',
-    buildAssessmentResultRoutes(dependecies)
-  );
+  router.get('/', (req, res, next) => {
+    assessmentController
+      .getAssessments(HttpRequest.parseExpressRequest(req))
+      .then((httpResponse) => {
+        res.status(httpResponse.status).json(httpResponse.toJSON());
+      })
+      .catch((error) => {
+        next(error);
+      });
+  });
+
+  router.put('/:assessmentId/mark-assessment-results-as-published', (req, res, next) => {
+    assessmentController
+      .markAssessmentResultsAsPublished(HttpRequest.parseExpressRequest(req))
+      .then((httpResponse) => {
+        res.status(httpResponse.status).json(httpResponse.toJSON());
+      })
+      .catch((error) => {
+        next(error);
+      });
+  });
+
+  router.get('/today-assessment', (req, res, next) => {
+    assessmentController
+      .getTodayAssessement(HttpRequest.parseExpressRequest(req))
+      .then((httpResponse) => {
+        res.status(httpResponse.status).json(httpResponse.toJSON());
+      })
+      .catch((error) => {
+        next(error);
+      });
+  });
+
+  router.use('/:assessmentId/assessment-results', buildAssessmentResultRoutes(dependecies));
 
   return router;
 };

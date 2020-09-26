@@ -4,6 +4,7 @@ const MongooseDatabaseServices = require('../../infrastructure/data_processing/m
 const CloudinaryStorageServices = require('../../infrastructure/file_storage/cloudinary/cloudinary-storage-services');
 const NodeMailerServices = require('../../infrastructure/email/node_mailer/node-mailer-services');
 const JwtUtils = require('../../infrastructure/token-utils/json_web_token/jwt-utils');
+const SimpleDateUtils = require('../../infrastructure/date_utils/simple-date-utils');
 
 module.exports = {
   fakeDataGenerator: new FakerDataGenerator(),
@@ -12,4 +13,5 @@ module.exports = {
   fileStorageServices: new CloudinaryStorageServices(),
   emailServices: new NodeMailerServices(),
   tokenUtils: new JwtUtils(),
+  dateUtils: new SimpleDateUtils(),
 };

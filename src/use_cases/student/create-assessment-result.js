@@ -8,7 +8,7 @@ module.exports = function buildCreateAssessmentResult({ databaseServices, fileSt
     if (!Array.isArray(assets)) throw new Error('assets must be an array');
 
     return assets.map((asset) => {
-      return new Asset({
+      return Asset.newInstance({
         ...asset,
         targetResource: assetEnums.targetResources.ASSESSMENT_RESULT,
       });
@@ -26,7 +26,7 @@ module.exports = function buildCreateAssessmentResult({ databaseServices, fileSt
   }
 
   async function deleteRemoteAssetFiles(remoteIds) {
-    const deleteRemoteAssetFilePromises = remoteIds.map((remoteId) => fileStorageServices.delete(remoteId));
+    const deleteRemoteAssetFilePromises = remoteIds.map((remoteId) => fileStorageServices.deleteFileResource(remoteId));
     await Promise.all(deleteRemoteAssetFilePromises);
   }
 

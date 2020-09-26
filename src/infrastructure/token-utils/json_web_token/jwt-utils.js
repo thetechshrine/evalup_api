@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const TokenUtils = require('../interfaces/token-utils');
+const { UnauthorizedError } = require('../../../application/helpers/errors');
 
 const defaultOptions = {
   issuer: 'EvalUp',
@@ -18,9 +19,8 @@ module.exports = class JwtUtils extends TokenUtils {
 
     try {
       jwt.verify(token, process.env.PUBLIC_KEY, { issuer, expiresIn, algorithms: [algorithm] });
-      return true;
     } catch (error) {
-      return false;
+      throw new UnauthorizedError(`Token ${token} is not an authorized`);
     }
   }
 

@@ -1,15 +1,15 @@
 const express = require('express');
 
 const HttpRequest = require('../../../../application/payloads/http-request');
-const buildAssessmentResultController = require('../../../../controllers/assessment-result-controller');
+const buildAuthController = require('../../../../controllers/auth-controller');
 
 module.exports = function buildRouter(dependecies) {
-  const router = express.Router({ mergeParams: true });
-  const assessmentResultController = buildAssessmentResultController(dependecies);
+  const router = express.Router();
+  const authController = buildAuthController(dependecies);
 
-  router.post('/', (req, res, next) => {
-    assessmentResultController
-      .createAssessmentResult(HttpRequest.parseExpressRequest(req))
+  router.put('/validate-account', (req, res, next) => {
+    authController
+      .validateAccount(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })
@@ -18,9 +18,9 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.get('/', (req, res, next) => {
-    assessmentResultController
-      .getAssessmentResults(HttpRequest.parseExpressRequest(req))
+  router.post('/sign-in', (req, res, next) => {
+    authController
+      .signIn(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })
@@ -29,9 +29,9 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.put('/:assessmentResultId/note', (req, res, next) => {
-    assessmentResultController
-      .noteAssessmentResult(HttpRequest.parseExpressRequest(req))
+  router.post('/create-administrator', (req, res, next) => {
+    authController
+      .createAdministrator(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })

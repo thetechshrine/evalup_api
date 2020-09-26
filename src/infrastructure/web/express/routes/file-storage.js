@@ -9,7 +9,7 @@ module.exports = function buildRouter(dependecies) {
 
   router.post('/', (req, res, next) => {
     fileStorageController
-      .saveFileResource(new HttpRequest(req))
+      .saveFileResource(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })
@@ -20,7 +20,7 @@ module.exports = function buildRouter(dependecies) {
 
   router.delete('/:remoteId', (req, res, next) => {
     fileStorageController
-      .deleteFileResource(new HttpRequest(req))
+      .deleteFileResource(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })

@@ -10,12 +10,10 @@ module.exports = function buildStudentController(dependencies) {
       ...request.query,
     });
 
-    const httpResponse = HttpResponse.created({
+    return HttpResponse.created({
       message: 'Student account successfully created',
       data: student,
     });
-
-    return httpResponse;
   }
 
   return {

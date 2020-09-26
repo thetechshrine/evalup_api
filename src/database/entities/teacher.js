@@ -109,7 +109,7 @@ module.exports = function buildStudent({ commonDataGenerator, commonDataValidato
         gender: this.#gender,
         lastName: this.#lastName,
         firstName: this.#firstName,
-        account: this.#account.toJSON(),
+        account: this.#account ? this.#account.toJSON() : {},
       };
     }
 

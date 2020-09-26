@@ -79,16 +79,16 @@ module.exports = class MongooseAssessmentResultRepository extends AssessmentResu
     return Promise.all(parseToAssessmentResultEntityPromises);
   }
 
-  async update(assessmentResultObject) {
+  async update(assessmentResultObject, entitiesToInclude) {
     const assessmentResult = await AssessmentResultModel.findOne({ id: assessmentResultObject.id });
     Object.assign(assessmentResult, assessmentResultObject.toJSON());
     await assessmentResult.save();
 
-    return this.parseToAssessmentResultEntity(assessmentResult);
+    return this.parseToAssessmentResultEntity(assessmentResult, entitiesToInclude);
   }
 
-  async updateAll(assessmentResultObjectArray = []) {
-    const updatePromises = assessmentResultObjectArray.map((assessmentResultObject) => this.update(assessmentResultObject));
+  async updateAll(assessmentResultObjectArray = [], entitiesToInclude) {
+    const updatePromises = assessmentResultObjectArray.map((assessmentResultObject) => this.update(assessmentResultObject, entitiesToInclude));
 
     return Promise.all(updatePromises);
   }

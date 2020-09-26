@@ -10,7 +10,18 @@ module.exports = function buildRouter(dependecies) {
 
   router.post('/', (req, res, next) => {
     groupController
-      .createGroup(new HttpRequest(req))
+      .createGroup(HttpRequest.parseExpressRequest(req))
+      .then((httpResponse) => {
+        res.status(httpResponse.status).json(httpResponse.toJSON());
+      })
+      .catch((error) => {
+        next(error);
+      });
+  });
+
+  router.get('/', (req, res, next) => {
+    groupController
+      .getGroups(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {
         res.status(httpResponse.status).json(httpResponse.toJSON());
       })

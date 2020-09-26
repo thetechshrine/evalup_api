@@ -13,22 +13,18 @@ module.exports = function buildFileStorageController(dependencies) {
       folder,
     });
 
-    const httpResponse = HttpResponse.succeeded({
+    return HttpResponse.succeeded({
       message: 'File successfully uploaded',
       data: storageServicesResponse.toJSON(),
     });
-
-    return httpResponse;
   }
 
   async function deleteFileResource(request) {
     await deleteFileResourceUseCase.execute(request.params);
 
-    const httpReponse = HttpResponse.succeeded({
+    return HttpResponse.succeeded({
       message: 'File successfully deleted',
     });
-
-    return httpReponse;
   }
 
   return {

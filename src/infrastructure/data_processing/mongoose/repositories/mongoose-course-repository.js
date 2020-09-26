@@ -22,7 +22,7 @@ module.exports = class MongooseCourseRepository extends CourseRespository {
     if (!id) throw new ParameterError('courseId parameter is mandatory');
 
     const matchingCoursesCount = await CourseModel.countDocuments({ id });
-    if (matchingCoursesCount !== 1) throw new ResourceNotFoundError(`Course with id ${id} not found`);
+    if (matchingCoursesCount !== 1) throw new ResourceNotFoundError(`Course with id ${id} was not found`);
   }
 
   async parseToCourseEntity(course, { includeGroup = false } = {}) {

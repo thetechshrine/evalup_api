@@ -26,14 +26,14 @@ module.exports = function buildCreateAssessment({ databaseServices, fileStorageS
   }
 
   async function deleteRemoteAssetFiles(remoteIds) {
-    const deleteRemoteAssetFilePromises = remoteIds.map((remoteId) => fileStorageServices.delete(remoteId));
+    const deleteRemoteAssetFilePromises = remoteIds.map((remoteId) => fileStorageServices.deleteFileResource(remoteId));
     await Promise.all(deleteRemoteAssetFilePromises);
   }
 
   async function deleteAllDataRelatedToTheProvidedAssessment(assessment) {
     await assetRepository.deleteAll(assessment.assets.map((asset) => asset.id));
     await assessmentRepository.delete(assessment.id);
-    await deleteRemoteAssetFiles(assessment.assets.map((asset) => asset.remoteId));
+    // await deleteRemoteAssetFiles(assessment.assets.map((asset) => asset.remoteId));
   }
 
   async function persistAssessment(assessment) {

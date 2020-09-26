@@ -8,4 +8,8 @@ module.exports = class AssessmentRepository extends EntityRepository {
   findAllByGroupId() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
+
+  findTodayAssessment() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
 };

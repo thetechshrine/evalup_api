@@ -37,7 +37,7 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
     if (!id) throw new ParameterError('assessmentId parameter is mandatory');
 
     const matchingAssessmentsCount = await AssessmentModel.countDocuments({ id });
-    if (matchingAssessmentsCount !== 1) throw new ResourceNotFoundError(`Assessment with id ${id} not found`);
+    if (matchingAssessmentsCount !== 1) throw new ResourceNotFoundError(`Assessment with id ${id} was not found`);
   }
 
   async parseToAssessmentEntity(assessment, { includeTeacher = false, includeCourse = false, includeGroup = false } = {}) {
@@ -45,15 +45,15 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
     const entitiesToInclude = {};
 
     if (includeTeacher) {
-      entitiesToInclude.teacher = MongooseAssessmentRepository.teacherRepository.findById(assessment.teacherId, {
+      entitiesToInclude.teacher = await MongooseAssessmentRepository.teacherRepository.findById(assessment.teacherId, {
         includeAccount: true,
       });
     }
     if (includeCourse) {
-      entitiesToInclude.course = MongooseAssessmentRepository.courseRepository.findById(assessment.courseId);
+      entitiesToInclude.course = await MongooseAssessmentRepository.courseRepository.findById(assessment.courseId);
     }
     if (includeGroup) {
-      entitiesToInclude.group = MongooseAssessmentRepository.groupRepository.findById(assessment.groupId);
+      entitiesToInclude.group = await MongooseAssessmentRepository.groupRepository.findById(assessment.groupId);
     }
 
     return new Assessment(Object.assign(assessment, { assets, ...entitiesToInclude }));
@@ -67,8 +67,8 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
     return this.parseToAssessmentEntity(foundAssessment, entitiesToInclude);
   }
 
-  async findByForeignKey(foreignKey, entitiesToInclude) {
-    const foundAssessments = await AssessmentModel.find({ [foreignKey]: foreignKey }).sort(defaultSortingParams);
+  async findByForeignKey(foreignKeyLabel, foreignKeyValue, entitiesToInclude) {
+    const foundAssessments = await AssessmentModel.find({ [foreignKeyLabel]: foreignKeyValue }).sort(defaultSortingParams);
     const parseToAssessmentEntityPromises = foundAssessments.map((foundAssessment) =>
       this.parseToAssessmentEntity(foundAssessment, entitiesToInclude)
     );
@@ -77,11 +77,25 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
   }
 
   async findAllByGroupId(groupId) {
-    return this.findByForeignKey(groupId, { includeTeacher: true, includeCourse: true });
+    return this.findByForeignKey('groupId', groupId, { includeTeacher: true, includeCourse: true });
   }
 
   async findAllByTeacherId(teachedId) {
-    return this.findByForeignKey(teachedId, { includeGroup: true, includeCourse: true });
+    return this.findByForeignKey('teacherId', teachedId, { includeGroup: true, includeCourse: true });
+  }
+
+  async findTodayAssessment(groupId) {
+    const todayDate = new Date();
+    const foundAssessment = await AssessmentModel.findOne({
+      groupId,
+      startDate: {
+        $gte: todayDate,
+        $lte: todayDate,
+      },
+    });
+    if (!foundAssessment) throw new ResourceNotFoundError(`There is no planned assessment for today`);
+
+    return this.parseToAssessmentEntity(foundAssessment, { includeCourse: true, includeTeacher: true });
   }
 
   async delete(id) {

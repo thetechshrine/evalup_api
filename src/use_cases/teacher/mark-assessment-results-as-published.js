@@ -14,7 +14,8 @@ module.exports = function buildMarkAssessmentResultsAsPublished({ databaseServic
         foundAssessmentResultCopy.status = assessmentResultEnums.statuses.PUBLISHED;
 
         return foundAssessmentResultCopy;
-      })
+      }),
+      { includeStudent: true }
     );
 
     return persistedAssessmentResults.map((assessmentResult) => assessmentResult.toJSON());

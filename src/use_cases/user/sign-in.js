@@ -1,13 +1,15 @@
 const accountEnums = require('../../database/enums/account');
 
 module.exports = function buildSignIn({ databaseServices, securityServices, tokenUtils }) {
-  const { accountRespository, studentRepository, teacherRepository } = databaseServices;
+  const { accountRepository, studentRepository, teacherRepository } = databaseServices;
 
   async function execute({ email, password }) {
     const signInResponse = {};
     const tokenPayload = {};
 
-    const foundAccount = await accountRespository.findByEmail(email);
+    const foundAccount = await accountRepository.findByEmail(email);
+
+    console.log(foundAccount.password);
 
     await securityServices.comparePassword({
       persistedPassword: foundAccount.password,
@@ -21,12 +23,10 @@ module.exports = function buildSignIn({ databaseServices, securityServices, toke
     if (foundAccount.role === accountEnums.roles.TEACHER) {
       const foundTeahcer = await teacherRepository.findByAccountId(foundAccount.id);
       signInResponse.user = foundTeahcer.toJSON();
-      tokenPayload.id = foundTeahcer.id;
     }
     if (foundAccount.role === accountEnums.roles.STUDENT) {
       const foundStudent = await studentRepository.findByAccountId(foundAccount.id);
       signInResponse.user = foundStudent.toJSON();
-      tokenPayload.id = foundStudent.id;
     }
 
     signInResponse.token = tokenUtils.generateToken(tokenPayload);

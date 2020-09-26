@@ -7,12 +7,10 @@ module.exports = function buildTeacherController(dependencies) {
   async function createTeacher(request) {
     const teacher = await createTeacherUseCase.execute(request.body);
 
-    const httpResponse = HttpResponse.created({
+    return HttpResponse.created({
       message: 'Teacher account successfully created',
       data: teacher,
     });
-
-    return httpResponse;
   }
 
   return {

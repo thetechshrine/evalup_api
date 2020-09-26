@@ -29,6 +29,9 @@ module.exports = function buildFileResource({ commonDataValidator }) {
     constructor({ file, folder } = {}) {
       validateFile(file);
       validateFolder(folder);
+
+      this.#file = file;
+      this.#folder = folder;
     }
 
     toJSON() {

@@ -33,7 +33,7 @@ module.exports = class MongooseStudentRepository extends StudentRepository {
     if (!id) throw new ParameterError('studentId parameter is mandatory');
 
     const matchingStudentsCount = await StudentModel.countDocuments({ id });
-    if (matchingStudentsCount !== 1) throw new ResourceNotFoundError(`Student with id ${id} not found`);
+    if (matchingStudentsCount !== 1) throw new ResourceNotFoundError(`Student with id ${id} was not found`);
   }
 
   async parseToStudentEntity(student, { includeAccount = false, includeAddress = false, includeGroup = false } = {}) {

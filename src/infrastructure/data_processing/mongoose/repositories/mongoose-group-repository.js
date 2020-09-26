@@ -16,7 +16,7 @@ module.exports = class MongooseGroupRepository extends GroupRespository {
     if (!id) throw new ParameterError('groupId parameter is mandatory');
 
     const matchingGroupsCount = await GroupModel.countDocuments({ id });
-    if (matchingGroupsCount !== 1) throw new ResourceNotFoundError(`Group with id ${id} not found`);
+    if (matchingGroupsCount !== 1) throw new ResourceNotFoundError(`Group with id ${id} not was found`);
   }
 
   async parseToGroupEntity(group) {

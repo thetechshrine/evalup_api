@@ -8,28 +8,29 @@ module.exports = class MongooseAccountRepository extends AccountRespository {
     const account = new AccountModel(accountObject.toJSON());
     await account.save();
 
-    return new Account(account);
+    return this.parseToAccountEntity(account);
   }
 
   async checkById(id) {
     if (!id) throw new ParameterError('accountId parameter is required');
 
     const matchingAccountsCount = await AccountModel.countDocuments({ id });
-    if (matchingAccountsCount !== 1) throw new ResourceNotFoundError(`Account with id ${id} not found`);
+    if (matchingAccountsCount !== 1) throw new ResourceNotFoundError(`Account with id ${id} was not found`);
   }
 
   async checkByEmail(email) {
     if (!email) throw new ParameterError('email parameter is required');
 
     const matchingAccountsCount = await AccountModel.countDocuments({ email });
-    if (matchingAccountsCount !== 1) throw new ResourceNotFoundError(`Account with email ${email} not found`);
+    if (matchingAccountsCount !== 1) throw new ResourceNotFoundError(`Account with email ${email} was not found`);
   }
 
   parseToAccountEntity(account) {
     const accountCopy = account;
-    delete accountCopy.password;
+    // eslint-disable-next-line no-underscore-dangle
+    delete accountCopy._doc.password;
 
-    return new Account(account);
+    return new Account(accountCopy);
   }
 
   async findById(id) {
