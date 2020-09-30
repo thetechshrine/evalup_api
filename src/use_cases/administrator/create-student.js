@@ -75,6 +75,7 @@ module.exports = function buildCreateStudent({ databaseServices, emailServices, 
     });
 
     await accountRepository.ensureThereIsNoAccountRelatedToTheProvidedEmail(email);
+    await studentRepository.ensureThereIsNoAccountRelatedToTheProvidedPhone(phone);
     student.account = await accountRepository.create(account);
     student.address = await persistAdress(address, account.id);
 

@@ -1,15 +1,15 @@
 const accountEnums = require('../../database/enums/account');
+const { UnauthorizedError } = require('../../application/helpers/errors');
 
 module.exports = function buildSignIn({ databaseServices, securityServices, tokenUtils }) {
   const { accountRepository, studentRepository, teacherRepository } = databaseServices;
 
-  async function execute({ email, password }) {
+  async function execute({ email, password, role }) {
     const signInResponse = {};
     const tokenPayload = {};
 
     const foundAccount = await accountRepository.findByEmail(email);
-
-    console.log(foundAccount.password);
+    if (foundAccount.role !== role) throw new UnauthorizedError('You are not allowed to access this platform');
 
     await securityServices.comparePassword({
       persistedPassword: foundAccount.password,

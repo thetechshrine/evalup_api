@@ -56,7 +56,7 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
       commonDataValidator.validateDateAsRequired(updatedAt, 'Course updatedAt');
 
       this.#id = id;
-      this.#code = code;
+      this.#code = code.toUpperCase();
       this.#title = title;
       this.#description = description;
       this.#credits = credits;
@@ -74,7 +74,7 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
 
     set code(code) {
       validateCode(code);
-      this.#code = code;
+      this.#code = code.toUpperCase();
     }
 
     get code() {

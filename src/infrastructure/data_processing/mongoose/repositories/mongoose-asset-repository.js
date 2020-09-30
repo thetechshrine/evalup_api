@@ -2,6 +2,7 @@ const AssetRespository = require('../../../../database/repositories/asset-reposi
 const { Asset } = require('../../../../database/entities');
 const assetEnums = require('../../../../database/enums/asset');
 const { AssetModel } = require('../models');
+const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseAssetRepository extends AssetRespository {
   assignForeignKeysToAsset(asset, assetObject) {
@@ -30,13 +31,13 @@ module.exports = class MongooseAssetRepository extends AssetRespository {
   }
 
   async findAllByAssessmentId(assessmentId) {
-    const assets = await AssetModel.find({ assessmentId });
+    const assets = await AssetModel.find({ assessmentId }).sort(defaultSortingParams);
 
     return assets.map((asset) => new Asset(asset));
   }
 
   async findAllByAssessmentResultId(assessmentResultId) {
-    const assets = await AssetModel.find({ assessmentResultId });
+    const assets = await AssetModel.find({ assessmentResultId }).sort(defaultSortingParams);
 
     return assets.map((asset) => new Asset(asset));
   }

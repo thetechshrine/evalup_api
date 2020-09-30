@@ -29,16 +29,13 @@ module.exports = function buildAssessmentController(dependencies) {
   }
 
   function extractGetAssessmentsCallback(request) {
-    controllerUtils.checkIfUserRoleQueryParamWasProvidedCorrectly(request);
-
-    const { accountRole } = request.query;
     const accountRolesEnum = accountEnums.roles;
 
     return {
       [accountRolesEnum.ADMINISTRATOR]: getAssessmentsForAdministratorUseCase,
       [accountRolesEnum.STUDENT]: getAssessmentsForStudentUseCase,
       [accountRolesEnum.TEACHER]: getAssessmentsForTeacherUseCase,
-    }[accountRole];
+    }[request.user.role];
   }
 
   async function getAssessments(request) {
@@ -51,6 +48,7 @@ module.exports = function buildAssessmentController(dependencies) {
   }
 
   async function getTodayAssessement(request) {
+    controllerUtils.ensureUserIsAStudent(request);
     const assessment = await getTodayAssessmentUseCase.execute(request.query);
 
     return HttpResponse.succeeded({

@@ -48,13 +48,13 @@ module.exports = function buildCreateAssessmentResult({ databaseServices, fileSt
 
   async function execute({ assets, studentId, assessmentId } = {}) {
     const student = await studentRepository.findById(studentId);
-    const assessment = await assessmentRepository.findById(assessmentId);
+    const assessment = await assessmentRepository.findById(assessmentId, { includeCourse: true, includeTeacher: true });
     const assessmentResult = AssessmentResult.newInstance({
       assets: parseAssetsArrayToInstantiatedAssetsArray(assets),
       student,
       assessment,
     });
-
+    await assessmentResultRepository.ensureAssessmentResultCanBeCreate(assessmentId, studentId);
     const persistedAssets = await assetRepository.createAll(
       assignAssessmentResultToInstanciatedAssetsArray(assessmentResult.assets, assessmentResult)
     );

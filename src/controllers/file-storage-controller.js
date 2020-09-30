@@ -20,7 +20,7 @@ module.exports = function buildFileStorageController(dependencies) {
   }
 
   async function deleteFileResource(request) {
-    await deleteFileResourceUseCase.execute(request.params);
+    await deleteFileResourceUseCase.execute(request.query);
 
     return HttpResponse.succeeded({
       message: 'File successfully deleted',

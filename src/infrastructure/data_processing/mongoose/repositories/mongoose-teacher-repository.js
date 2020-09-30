@@ -3,6 +3,7 @@ const { Teacher } = require('../../../../database/entities');
 const { TeacherModel } = require('../models');
 const { ResourceNotFoundError, ParameterError } = require('../../../../application/helpers/errors');
 const MongooseAccountRepository = require('./mongoose-account-repository');
+const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseTeacherRepository extends TeacherRepository {
   static accountRepository = new MongooseAccountRepository();
@@ -46,6 +47,13 @@ module.exports = class MongooseTeacherRepository extends TeacherRepository {
     const student = await TeacherModel.findOne({ accountId });
 
     return this.parseToTeacherEntity(student, { includeAccount: true });
+  }
+
+  async findAll(entitesToInclude = {}) {
+    const teachers = await TeacherModel.find().sort(defaultSortingParams);
+    const parseToTeacherEntityPromises = teachers.map((teacher) => this.parseToTeacherEntity(teacher, entitesToInclude));
+
+    return Promise.all(parseToTeacherEntityPromises);
   }
 
   async delete(id) {

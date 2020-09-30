@@ -47,6 +47,15 @@ module.exports = function buildAssessment({ commonDataGenerator, commonDataValid
     entityValidator.validateCourse({ course, required, errorPrefix: 'Assessment course' });
   }
 
+  function ensureDatesAreNotAlreadyPassed(startDate, endDate) {
+    commonDataValidator.validateDateAsRequired(startDate, 'Assessment startDate');
+    commonDataValidator.validateDateAsRequired(endDate, 'Assessment endDate');
+
+    const nowTime = Date.now();
+    if (new Date(startDate).getTime() <= nowTime) throw new BadRequestError('Assessment startDate is already passed');
+    if (new Date(endDate).getTime() <= nowTime) throw new BadRequestError('Assessment endDate is already passed');
+  }
+
   return class Assessment extends TimeEntity {
     #id;
     #createdAt;
@@ -189,7 +198,7 @@ module.exports = function buildAssessment({ commonDataGenerator, commonDataValid
         teacher: this.#teacher ? this.#teacher.toJSON() : {},
         course: this.#course ? this.#course.toJSON() : {},
         group: this.#group ? this.#group.toJSON() : {},
-        asset: assetUtils.parseAssetsToJSONArray(this.#assets),
+        assets: assetUtils.parseAssetsToJSONArray(this.#assets),
       };
     }
 
@@ -210,6 +219,7 @@ module.exports = function buildAssessment({ commonDataGenerator, commonDataValid
       validateCourse(course, true);
       validateGroup(group, true);
       validateTeacher(teacher, true);
+      ensureDatesAreNotAlreadyPassed(startDate, endDate);
 
       return new Assessment({
         id,

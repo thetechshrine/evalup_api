@@ -18,5 +18,16 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
+  router.get('/', (req, res, next) => {
+    studentController
+      .getStudents(HttpRequest.parseExpressRequest(req))
+      .then((httpResponse) => {
+        res.status(httpResponse.status).json(httpResponse.toJSON());
+      })
+      .catch((error) => {
+        next(error);
+      });
+  });
+
   return router;
 };

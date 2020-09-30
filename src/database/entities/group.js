@@ -32,7 +32,7 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
       commonDataValidator.validateDateAsRequired(updatedAt, 'Group updatedAt');
 
       this.#id = id;
-      this.#code = code;
+      this.#code = code.toUpperCase();
       this.#title = title;
       this.#description = description;
       this.#createdAt = createdAt;
@@ -46,7 +46,8 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
     }
 
     set code(code) {
-      this.#code = code;
+      validateCode(code);
+      this.#code = code.toUpperCase();
     }
 
     get code() {
@@ -54,6 +55,7 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
     }
 
     set title(title) {
+      validateTitle(title);
       this.#title = title;
     }
 
@@ -62,6 +64,7 @@ module.exports = function buildCourse({ commonDataGenerator, commonDataValidator
     }
 
     set description(description) {
+      validateDescription(description);
       this.#description = description;
     }
 

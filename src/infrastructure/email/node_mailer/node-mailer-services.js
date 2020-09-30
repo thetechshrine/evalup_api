@@ -22,7 +22,7 @@ module.exports = class NodeMailerServices extends EmailServices {
     const transporter = this.configNodeMailerTransport();
 
     return transporter.sendMail({
-      from: '"EvalUp" <no-reply@evalup.com>',
+      from: '"SAMAPP" <no-reply@samapp.com>',
       to,
       subject,
       html,

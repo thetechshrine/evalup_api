@@ -5,7 +5,7 @@ const MongooseAssetRepository = require('./mongoose-asset-repository');
 const MongooseTeacherRepository = require('./mongoose-teacher-repository');
 const MongooseCourseRepository = require('./mongoose-course-repository');
 const MongooseGroupRepository = require('./mongoose-group-repository');
-const { ParameterError, ResourceNotFoundError } = require('../../../../application/helpers/errors');
+const { ParameterError, ResourceNotFoundError, BadRequestError } = require('../../../../application/helpers/errors');
 const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseAssessmentRepository extends AssessmentRespository {
@@ -68,7 +68,9 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
   }
 
   async findByForeignKey(foreignKeyLabel, foreignKeyValue, entitiesToInclude) {
-    const foundAssessments = await AssessmentModel.find({ [foreignKeyLabel]: foreignKeyValue }).sort(defaultSortingParams);
+    const query = {};
+    if (foreignKeyValue) query[foreignKeyLabel] = foreignKeyValue;
+    const foundAssessments = await AssessmentModel.find(query).sort(defaultSortingParams);
     const parseToAssessmentEntityPromises = foundAssessments.map((foundAssessment) =>
       this.parseToAssessmentEntity(foundAssessment, entitiesToInclude)
     );
@@ -77,7 +79,7 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
   }
 
   async findAllByGroupId(groupId) {
-    return this.findByForeignKey('groupId', groupId, { includeTeacher: true, includeCourse: true });
+    return this.findByForeignKey('groupId', groupId, { includeTeacher: true, includeCourse: true, includeGroup: true });
   }
 
   async findAllByTeacherId(teachedId) {
@@ -93,9 +95,34 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
         $lte: todayDate,
       },
     });
-    if (!foundAssessment) throw new ResourceNotFoundError(`There is no planned assessment for today`);
+    if (!foundAssessment) throw new ResourceNotFoundError(`There is no planned assessment for today or you can't longer access it`);
 
     return this.parseToAssessmentEntity(foundAssessment, { includeCourse: true, includeTeacher: true });
+  }
+
+  async ensureThereIsNoAssessmentWithSameDates(groupId, startDate, endDate) {
+    const matchingAssessmentsCount = await AssessmentModel.countDocuments({
+      groupId,
+      $or: [
+        {
+          startDate: {
+            $lte: new Date(startDate),
+          },
+          endDate: {
+            $gte: new Date(startDate),
+          },
+        },
+        {
+          startDate: {
+            $lte: new Date(endDate),
+          },
+          endDate: {
+            $gte: new Date(endDate),
+          },
+        },
+      ],
+    });
+    if (matchingAssessmentsCount > 0) throw new BadRequestError(`There is already an assessment assigned to the provided dates`);
   }
 
   async delete(id) {

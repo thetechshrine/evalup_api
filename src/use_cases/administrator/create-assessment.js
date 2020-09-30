@@ -33,7 +33,7 @@ module.exports = function buildCreateAssessment({ databaseServices, fileStorageS
   async function deleteAllDataRelatedToTheProvidedAssessment(assessment) {
     await assetRepository.deleteAll(assessment.assets.map((asset) => asset.id));
     await assessmentRepository.delete(assessment.id);
-    // await deleteRemoteAssetFiles(assessment.assets.map((asset) => asset.remoteId));
+    await deleteRemoteAssetFiles(assessment.assets.map((asset) => asset.remoteId));
   }
 
   async function persistAssessment(assessment) {
@@ -51,7 +51,7 @@ module.exports = function buildCreateAssessment({ databaseServices, fileStorageS
     const course = await courseRepository.findById(courseId);
     const teacher = await teacherRepository.findById(teacherId);
     const assessment = Assessment.newInstance({
-      title,
+      title: title || course.title,
       type,
       description,
       startDate,
@@ -61,6 +61,7 @@ module.exports = function buildCreateAssessment({ databaseServices, fileStorageS
       teacher,
       course,
     });
+    await assessmentRepository.ensureThereIsNoAssessmentWithSameDates(groupId, startDate, endDate);
     const persistedAssets = await assetRepository.createAll(assignAssessmentToInstanciatedAssetsArray(assessment.assets, assessment));
     assessment.assets = persistedAssets;
 

@@ -113,7 +113,7 @@ module.exports = function buildAccount({ commonDataGenerator, commonDataValidato
       email,
       password,
       role,
-      active = true,
+      active = false,
       createdAt = Date.now(),
       updatedAt = Date.now(),
     } = {}) {

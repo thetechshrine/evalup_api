@@ -12,4 +12,8 @@ module.exports = class AssessmentRepository extends EntityRepository {
   findTodayAssessment() {
     return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
   }
+
+  ensureThereIsNoAssessmentWithSameDates() {
+    return Promise.reject(new Error('ERR_METHOD_NOT_IMPLEMENTED'));
+  }
 };

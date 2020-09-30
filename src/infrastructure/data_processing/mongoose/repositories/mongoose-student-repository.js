@@ -1,10 +1,11 @@
 const StudentRepository = require('../../../../database/repositories/student-repository');
 const { Student } = require('../../../../database/entities');
 const { StudentModel } = require('../models');
-const { ResourceNotFoundError, ParameterError } = require('../../../../application/helpers/errors');
+const { ResourceNotFoundError, ParameterError, BadRequestError } = require('../../../../application/helpers/errors');
 const MongooseAccountRepository = require('./mongoose-account-repository');
 const MongooseAddressRepository = require('./mongoose-address-repository');
 const MongooseGroupRepository = require('./mongoose-group-repository');
+const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseStudentRepository extends StudentRepository {
   static accountRepository = new MongooseAccountRepository();
@@ -64,6 +65,18 @@ module.exports = class MongooseStudentRepository extends StudentRepository {
     const student = await StudentModel.findOne({ accountId });
 
     return this.parseToStudentEntity(student, { includeAccount: true, includeAddress: true, includeGroup: true });
+  }
+
+  async ensureThereIsNoAccountRelatedToTheProvidedPhone(phone) {
+    const foundStudent = await StudentModel.findOne({ phone });
+    if (foundStudent) throw new BadRequestError(`Phone ${phone} is already associated with a student`);
+  }
+
+  async findAll(entitesToInclude = {}) {
+    const students = await StudentModel.find().sort(defaultSortingParams);
+    const parseToStudentEntityPromises = students.map((student) => this.parseToStudentEntity(student, entitesToInclude));
+
+    return Promise.all(parseToStudentEntityPromises);
   }
 
   async delete(id) {

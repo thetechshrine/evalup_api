@@ -2,7 +2,7 @@ module.exports = function buildGetAssessments({ databaseServices }) {
   const { assessmentRepository, groupRepository } = databaseServices;
 
   async function execute({ groupId }) {
-    await groupRepository.checkById(groupId);
+    if (groupId) await groupRepository.checkById(groupId);
 
     const foundAssessments = await assessmentRepository.findAllByGroupId(groupId);
 

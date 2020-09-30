@@ -4,7 +4,7 @@ const { AssessmentResultModel } = require('../models');
 const MongooseAssetRepository = require('./mongoose-asset-repository');
 const MongooseStudentRepository = require('./mongoose-student-repository');
 const MongooseAssessmentRepository = require('./mongoose-assessment-repository');
-const { ParameterError, ResourceNotFoundError } = require('../../../../application/helpers/errors');
+const { ParameterError, ResourceNotFoundError, BadRequestError } = require('../../../../application/helpers/errors');
 const defaultSortingParams = require('../utils/default-sorting-params');
 
 module.exports = class MongooseAssessmentResultRepository extends AssessmentResultRepository {
@@ -77,6 +77,27 @@ module.exports = class MongooseAssessmentResultRepository extends AssessmentResu
     );
 
     return Promise.all(parseToAssessmentResultEntityPromises);
+  }
+
+  async ensureThereIsNoAssessmentResultForThisAssessmentThatHasBeenSubmittedByThisStudent(assessmentId, studentId) {
+    const matchingAssessmentResultsCount = await AssessmentResultModel.countDocuments({ assessmentId, studentId });
+    if (matchingAssessmentResultsCount > 0) throw new BadRequestError('You have already submitted a result for this assessment');
+  }
+
+  async ensureTheSubmittingDateIsBetweenAssessmentStartAndEndDates(assessmentId) {
+    const submittingDate = Date.now();
+    const foundAssessment = await MongooseAssessmentResultRepository.assessmentRepository.findById(assessmentId);
+    const startDate = new Date(foundAssessment.startDate).getTime();
+    const endDate = new Date(foundAssessment.endDate).getTime();
+
+    if (submittingDate < startDate || submittingDate > endDate) {
+      throw new BadRequestError('You can non longer submit a result for this assessment');
+    }
+  }
+
+  async ensureAssessmentResultCanBeCreate(assessmentId, studentId) {
+    await this.ensureThereIsNoAssessmentResultForThisAssessmentThatHasBeenSubmittedByThisStudent(assessmentId, studentId);
+    await this.ensureTheSubmittingDateIsBetweenAssessmentStartAndEndDates(assessmentId);
   }
 
   async update(assessmentResultObject, entitiesToInclude) {

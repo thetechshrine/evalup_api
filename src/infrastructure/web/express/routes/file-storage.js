@@ -18,7 +18,7 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.delete('/:remoteId', (req, res, next) => {
+  router.delete('/', (req, res, next) => {
     fileStorageController
       .deleteFileResource(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {

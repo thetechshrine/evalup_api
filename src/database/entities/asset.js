@@ -29,6 +29,10 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
     commonDataValidator.validateUrlAsRequired(url, 'Asset url');
   }
 
+  function validateName(name) {
+    commonDataValidator.validateStringAsRequired(name, 'Asset name');
+  }
+
   function validateAssessment(assessment, required = false) {
     entityValidator.validateAssessment({ assessment, required, errorPrefix: 'Asset assessment' });
   }
@@ -41,6 +45,7 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
     #id;
     #createdAt;
     #updatedAt;
+    #name;
     #type;
     #role;
     #targetResource;
@@ -49,12 +54,13 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
     #assessment;
     #assessmentResult;
 
-    constructor({ id, type, role, targetResource, url, remoteId, assessment, assessmentResult, createdAt, updatedAt } = {}) {
+    constructor({ id, name = 'Ressource', type, role, targetResource, url, remoteId, assessment, assessmentResult, createdAt, updatedAt } = {}) {
       super();
 
       commonDataValidator.validateIdAsRequired(id, 'Asset id');
       validateType(type);
       validateRole(role);
+      validateName(name);
       validateTargetResource(targetResource);
       validateRemoteId(remoteId);
       validateUrl(url);
@@ -66,6 +72,7 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
       this.#id = id;
       this.#type = type;
       this.#role = role;
+      this.#name = name;
       this.#targetResource = targetResource;
       this.#url = url;
       this.#remoteId = remoteId;
@@ -77,6 +84,16 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
 
     get id() {
       return this.#id;
+    }
+
+    set name(name) {
+      validateType(name);
+      this.#name = name;
+      this.#updatedAt = Date.now();
+    }
+
+    get name() {
+      return this.#name;
     }
 
     set type(type) {
@@ -154,6 +171,7 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
         id: this.#id,
         createdAt: this.#createdAt,
         updatedAt: this.#updatedAt,
+        name: this.#name,
         type: this.#type,
         role: this.#role,
         targetResource: this.#targetResource,
@@ -164,6 +182,7 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
 
     static newInstance({
       id = commonDataGenerator.generateId(),
+      name,
       type,
       role,
       targetResource,
@@ -176,6 +195,7 @@ module.exports = function buildAsset({ commonDataGenerator, commonDataValidator 
     } = {}) {
       return new Asset({
         id,
+        name,
         type,
         role,
         targetResource,

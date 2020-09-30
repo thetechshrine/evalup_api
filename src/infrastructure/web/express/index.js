@@ -10,6 +10,7 @@ const buildTeacherRoutes = require('./routes/teacher');
 const buildStudentRoutes = require('./routes/student');
 const buildGroupRoutes = require('./routes/group');
 const buildAssessmentRoutes = require('./routes/assessment');
+const buildUserRoutes = require('./routes/user');
 
 const loggingHandler = require('./middlewares/logging-handler');
 const uploadHandler = require('./middlewares/upload-handler');
@@ -27,6 +28,7 @@ function start(dependencies) {
   app.use(bodyParser.json());
 
   app.use('/services/auth', buildAuthRoutes(dependencies));
+  app.use('/services/users', authorizationHandler, uploadHandler, buildUserRoutes(dependencies));
   app.use('/services/file-storage', authorizationHandler, uploadHandler, buildFileStorageRoutes(dependencies));
   app.use('/teachers', authorizationHandler, buildTeacherRoutes(dependencies));
   app.use('/students', authorizationHandler, buildStudentRoutes(dependencies));
