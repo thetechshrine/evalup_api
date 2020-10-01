@@ -14,7 +14,7 @@ module.exports = function buildAssessmentResult({ commonDataGenerator, commonDat
   function validateObtainedNote(obtainedNote) {
     commonDataValidator.validateNumberAsRequired(obtainedNote, 'Assessment result obtainedNote');
 
-    if (obtainedNote < 0) throw new BadRequestError('Assessment result obtainedNote must be greater or equal to 0');
+    if (obtainedNote < 0 || obtainedNote > 20) throw new BadRequestError('Assessment result obtainedNote must be between 0 and 20');
   }
 
   function validateObtainedCredits(obtainedCredits) {
@@ -161,7 +161,7 @@ module.exports = function buildAssessmentResult({ commonDataGenerator, commonDat
         obtainedCredits: this.#obtainedCredits,
         comments: this.#comments,
         status: this.#status,
-        assessment: this.#assessment ? this.#assessment.toJSON() : {},
+        assessment: this.#assessment !== null ? this.#assessment.toJSON() : {},
         student: this.#student ? this.#student.toJSON() : {},
         assets: assetUtils.parseAssetsToJSONArray(this.#assets),
       };

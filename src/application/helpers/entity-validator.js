@@ -6,7 +6,7 @@ function validateEntity(entity, className, required, errorPrefix) {
     throw new ParameterError(`${errorPrefix} is required`);
   }
 
-  if (entity && entity.constructor.name !== className) {
+  if (entity && required && entity.constructor.name !== className) {
     throw new ParameterError(`${errorPrefix} must be an instance of ${className} class`);
   }
 }

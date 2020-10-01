@@ -30,7 +30,7 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.put('/:assessmentId/mark-assessment-results-as-published', (req, res, next) => {
+  router.put('/:assessmentId/publish-results', (req, res, next) => {
     assessmentController
       .markAssessmentResultsAsPublished(HttpRequest.parseExpressRequest(req))
       .then((httpResponse) => {

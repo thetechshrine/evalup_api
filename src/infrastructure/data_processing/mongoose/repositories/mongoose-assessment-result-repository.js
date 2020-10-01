@@ -66,7 +66,7 @@ module.exports = class MongooseAssessmentResultRepository extends AssessmentResu
   async findAllByAssessmentId(assessmentId) {
     const foundAssessmentResults = await AssessmentResultModel.find({ assessmentId }).sort(defaultSortingParams);
     const parseToAssessmentResultEntityPromises = foundAssessmentResults.map((foundAssessmentResult) =>
-      this.parseToAssessmentResultEntity(foundAssessmentResult, { includeStudent: true })
+      this.parseToAssessmentResultEntity(foundAssessmentResult, { includeStudent: true, includeAssessment: true })
     );
 
     return Promise.all(parseToAssessmentResultEntityPromises);
