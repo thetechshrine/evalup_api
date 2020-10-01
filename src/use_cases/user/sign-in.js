@@ -1,5 +1,5 @@
 const accountEnums = require('../../database/enums/account');
-const { UnauthorizedError } = require('../../application/helpers/errors');
+const { UnauthorizedError, BadRequestError } = require('../../application/helpers/errors');
 
 module.exports = function buildSignIn({ databaseServices, securityServices, tokenUtils }) {
   const { accountRepository, studentRepository, teacherRepository } = databaseServices;
@@ -10,6 +10,8 @@ module.exports = function buildSignIn({ databaseServices, securityServices, toke
 
     const foundAccount = await accountRepository.findByEmail(email);
     if (foundAccount.role !== role) throw new UnauthorizedError('You are not allowed to access this platform');
+
+    if (!foundAccount.password) throw new BadRequestError('You need to activate your account before accessing this platform');
 
     await securityServices.comparePassword({
       persistedPassword: foundAccount.password,

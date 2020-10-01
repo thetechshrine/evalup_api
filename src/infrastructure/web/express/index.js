@@ -10,6 +10,7 @@ const buildTeacherRoutes = require('./routes/teacher');
 const buildStudentRoutes = require('./routes/student');
 const buildGroupRoutes = require('./routes/group');
 const buildAssessmentRoutes = require('./routes/assessment');
+const buildAssessmentResultRoutes = require('./routes/assessment-result');
 const buildUserRoutes = require('./routes/user');
 
 const loggingHandler = require('./middlewares/logging-handler');
@@ -34,6 +35,7 @@ function start(dependencies) {
   app.use('/students', authorizationHandler, buildStudentRoutes(dependencies));
   app.use('/groups', authorizationHandler, buildGroupRoutes(dependencies));
   app.use('/assessments', authorizationHandler, buildAssessmentRoutes(dependencies));
+  app.use('/assessment-results', authorizationHandler, buildAssessmentResultRoutes(dependencies));
   app.use(errorHandler);
 
   const PORT = process.env.PORT || process.env.SERVER_PORT;

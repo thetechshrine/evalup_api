@@ -41,7 +41,9 @@ module.exports = class MongooseAssessmentResultRepository extends AssessmentResu
     const entitiesToInclude = {};
 
     if (includeAssessment) {
-      entitiesToInclude.assessment = await MongooseAssessmentResultRepository.assessmentRepository.findById(assessmentResult.assessmentId);
+      entitiesToInclude.assessment = await MongooseAssessmentResultRepository.assessmentRepository.findById(assessmentResult.assessmentId, {
+        includeCourse: true,
+      });
     }
     if (includeStudent) {
       entitiesToInclude.student = await MongooseAssessmentResultRepository.studentRepository.findById(assessmentResult.studentId, {
@@ -65,6 +67,15 @@ module.exports = class MongooseAssessmentResultRepository extends AssessmentResu
     const foundAssessmentResults = await AssessmentResultModel.find({ assessmentId }).sort(defaultSortingParams);
     const parseToAssessmentResultEntityPromises = foundAssessmentResults.map((foundAssessmentResult) =>
       this.parseToAssessmentResultEntity(foundAssessmentResult, { includeStudent: true })
+    );
+
+    return Promise.all(parseToAssessmentResultEntityPromises);
+  }
+
+  async findAllByStudentId(studentId) {
+    const foundAssessmentResults = await AssessmentResultModel.find({ studentId }).sort(defaultSortingParams);
+    const parseToAssessmentResultEntityPromises = foundAssessmentResults.map((foundAssessmentResult) =>
+      this.parseToAssessmentResultEntity(foundAssessmentResult, { includeAssessment: true })
     );
 
     return Promise.all(parseToAssessmentResultEntityPromises);

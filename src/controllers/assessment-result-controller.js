@@ -28,16 +28,13 @@ module.exports = function buildAssessmentResultController(dependencies) {
   }
 
   function extractGetAssessmentResultsCallback(request) {
-    controllerUtils.checkIfUserRoleQueryParamWasProvidedCorrectly(dependencies.commonDataValidator, request);
-
-    const { accountRole } = request.query;
     const accountRolesEnum = accountEnums.roles;
 
     return {
       [accountRolesEnum.ADMINISTRATOR]: getAssessmentResultsForAdministratorUseCase,
       [accountRolesEnum.STUDENT]: getAssessmentResultsForStudentUseCase,
       [accountRolesEnum.TEACHER]: getAssessmentResultsForTeacherUseCase,
-    }[accountRole];
+    }[request.user.role];
   }
 
   async function getAssessmentResults(request) {

@@ -52,7 +52,5 @@ module.exports = function buildRouter(dependecies) {
       });
   });
 
-  router.use('/:assessmentId/assessment-results', buildAssessmentResultRoutes(dependecies));
-
   return router;
 };

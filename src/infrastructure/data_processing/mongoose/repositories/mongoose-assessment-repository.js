@@ -91,11 +91,13 @@ module.exports = class MongooseAssessmentRepository extends AssessmentRespositor
     const foundAssessment = await AssessmentModel.findOne({
       groupId,
       startDate: {
-        $gte: todayDate,
         $lte: todayDate,
       },
+      endDate: {
+        $gte: todayDate,
+      },
     });
-    if (!foundAssessment) throw new ResourceNotFoundError(`There is no planned assessment for today or you can't longer access it`);
+    if (!foundAssessment) throw new ResourceNotFoundError(`There is no assigment planned for today or you can't longer access it`);
 
     return this.parseToAssessmentEntity(foundAssessment, { includeCourse: true, includeTeacher: true });
   }

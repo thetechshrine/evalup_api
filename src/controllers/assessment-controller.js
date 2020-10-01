@@ -48,7 +48,7 @@ module.exports = function buildAssessmentController(dependencies) {
   }
 
   async function getTodayAssessement(request) {
-    controllerUtils.ensureUserIsAStudent(request);
+    // controllerUtils.ensureUserIsAStudent(request);
     const assessment = await getTodayAssessmentUseCase.execute(request.query);
 
     return HttpResponse.succeeded({

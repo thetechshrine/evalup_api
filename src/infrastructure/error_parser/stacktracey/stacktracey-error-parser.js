@@ -7,6 +7,8 @@ module.exports = class StackTraceyErrorParser extends ErrorParser {
   parseError(error) {
     super.parseError(error);
 
+    console.log(error);
+
     const stack = new StackTracey(error);
     const firstStackItem = stack.items[0];
 
